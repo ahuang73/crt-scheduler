@@ -21,6 +21,11 @@ const router = createRouter({
       path: '/shifts',
       name: 'shifts',
       component: () => import('../views/ShiftView.vue')
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: () => import('../views/ProfileView.vue')
     }
   ]
 })
