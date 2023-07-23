@@ -7,7 +7,7 @@ import ShiftTable from '../components/ShiftTable.vue'
 <template>
     <div class="page-header">
         <h1>
-            Joe Smith (Secondary)
+            John Doe (Secondary)
             <!-- <a title="Edit" class="btn btn-primary" href="/users/575/edit"><i class="icon-edit icon-white"></i> Edit
                 Responder</a> -->
         </h1>
@@ -20,12 +20,12 @@ import ShiftTable from '../components/ShiftTable.vue'
         <div class="row">
             <div class="well well-small span-6">
                 <h4>Certifications</h4>
-                <p>SFA expiration date: 2025-04-24</p>
-                <p>BLS expiration date: 2025-08-27</p>
-                <p>FR expiration date: 2025-08-27</p>
+                <p>SFA expiration date: yyyy-mm-dd</p>
+                <p>BLS expiration date: yyyy-mm-dd</p>
+                <p>FR expiration date: yyyy-mm-dd</p>
                 <p>
                 </p>
-                <p>Based on your expiration dates, you will not be able to take shifts after 2025-08-27
+                <p>Based on your expiration dates, you will not be able to take shifts after yyyy-mm-dd
                 </p>
                 <p>Contact the Directors of Administration and Scheduling if you have more recent certifications</p>
             </div>

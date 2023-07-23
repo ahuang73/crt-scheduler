@@ -58,7 +58,7 @@
             ],
             items: [
                 {
-                    Date: "Tues Jan 10",
+                    Date: "DD-MM-YY",
                     Name: "Test Shift",
                     Location: "Otto",
                     Start: "11:00",
@@ -69,7 +69,7 @@
                     Type: "Regular"
                 },
                 {
-                    Date: "Wed Jan 11",
+                    Date: "DD-MM-YY",
                     Name: "Test Shift 2",
                     Location: "Otto",
                     Start: "11:00",
