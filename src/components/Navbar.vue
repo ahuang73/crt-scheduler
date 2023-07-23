@@ -20,6 +20,15 @@ import  {CNavbar, CContainer, CNavbarBrand, CNavbarToggler, CCollapse,CNavbarNav
         <CNavItem>
           <CNavLink href="/profile">Profile</CNavLink>
         </CNavItem>
+        <CNavItem v-if="scheduler">
+          <CNavLink href="/shift_types">Shift Types</CNavLink>
+        </CNavItem>
+        <CNavItem v-if="scheduler">
+          <CNavLink href="/responders">Responders</CNavLink>
+        </CNavItem>
+        <CNavItem v-if="scheduler">
+          <CNavLink href="/eot">EoT</CNavLink>
+        </CNavItem>
         
       </CNavbarNav>
      
@@ -28,6 +37,16 @@ import  {CNavbar, CContainer, CNavbarBrand, CNavbarToggler, CCollapse,CNavbarNav
 </CNavbar>
 </template>
 
+
+<script lang="ts">
+export default {
+    data() {
+        return {
+          scheduler: true,
+        };
+    }
+};
+</script>
 <style scoped>
     
 </style>

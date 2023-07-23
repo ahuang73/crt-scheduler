@@ -26,6 +26,21 @@ const router = createRouter({
       path: '/profile',
       name: 'profile',
       component: () => import('../views/ProfileView.vue')
+    },
+    {
+      path: '/shift_types',
+      name: 'shifttypes',
+      component: () => import('../views/ShiftTypes.vue')
+    },
+    {
+      path: '/responders',
+      name: 'responders',
+      component: () => import('../views/ResponderView.vue')
+    },
+    {
+      path: '/eot',
+      name: 'endofterm',
+      component: () => import('../views/EndOfTermView.vue')
     }
   ]
 })

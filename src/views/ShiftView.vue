@@ -43,8 +43,9 @@
                 ASAP.
             </p>
         </div>
-        <CButton color="primary" variant="outline">Show All Shifts</CButton>
-        <CButton color="primary" variant="outline">Show Current Shifts</CButton>
+        <CButton v-if="scheduler" color="success" value="new_shift">New Shift</CButton>
+        <CButton color="primary" variant="outline" value = "show_all">Show All Shifts</CButton>
+        <CButton color="primary" variant="outline" value = "show_current">Show Current Shifts</CButton>
         <div>
             <CTable :columns="columns" :items="items" />
         </div>
@@ -58,6 +59,7 @@
   export default {
     data: () => {
         return {
+            scheduler: true,
             columns: [
                 {
                     key: "Date",
