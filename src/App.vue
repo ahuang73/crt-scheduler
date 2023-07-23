@@ -23,34 +23,6 @@ import navbar from './components/Navbar.vue'
 
 <style scoped>
 
-/* header {
-  position: fixed;
-  width: 100%;
-  top: 0;
-  left: 0;
-} */
 
-/* nav {
-  position:fixed;
-  right:0;
-  left:0;
-  z-index: 1000000;
-  width: 100%;
-  font-size: 16px;
-  background-color: black;
-  
-
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
- 
-}
-
-nav a:first-of-type {
-  border: 0;
-} */
 
 </style>

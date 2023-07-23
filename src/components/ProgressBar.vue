@@ -8,8 +8,7 @@ import { CProgress, CProgressBar } from '@coreui/vue';
             <CProgressBar :value="0" />
         </CProgress>
         <h6>Training: 25.0/ 100.0 ( 5.0 hours upcoming) </h6>
-        <CProgress class="mb-3">
-            
+        <CProgress class="mb-3">          
             <CProgressBar :value="25" />
             <CProgressBar color ="warning" :value="5"/>
         </CProgress>
