@@ -8,7 +8,7 @@ import { CButton, CTable } from '@coreui/vue';
         <h1>Shift Types</h1>
     </div>
     <div>
-        <CButton color="primary" variant="outline" value = "show_all">Show All Shifts</CButton>
+        <CButton @click="$router.push('shift_types/new')" color="success" value = "show_all">New Shift Type</CButton>
         <CTable :columns="columns" :items="items" />
     </div>
 </template>

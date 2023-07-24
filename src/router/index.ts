@@ -25,6 +25,11 @@ const router = createRouter({
       component: () => import('../views/ShiftTypes.vue')
     },
     {
+      path: '/shift_types/new',
+      name: 'newshifttype',
+      component: () => import('../views/NewShiftTypeView.vue')
+    },
+    {
       path: '/responders',
       name: 'responders',
       component: () => import('../views/ResponderView.vue'),
