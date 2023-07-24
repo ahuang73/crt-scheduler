@@ -12,7 +12,7 @@
     <CForm>
         
         <CFormInput  type="text" id ="search" label="Search Responder" aria-placeholder="Search Responder"/>
-        <CButton color="primary" variant="outline" value = "show_all">New Responder</CButton>
+        <CButton @click="$router.push('responders/new')" color="primary" variant="outline" value = "show_all">New Responder</CButton>
     </CForm>
 
     <CTable :columns="columns" :items="items" />

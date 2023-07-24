@@ -33,9 +33,12 @@ const router = createRouter({
       path: '/responders',
       name: 'responders',
       component: () => import('../views/ResponderView.vue'),
-      // children: [
-      //   {path: '/new', component: import('../views/NewResponderView.vue')},
-      // ],
+    
+    },
+    {
+      path: '/responders/new',
+      name: 'NewResponder',
+      component: () => import('../views/NewResponderView.vue'),
     
     },
 
