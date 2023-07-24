@@ -43,7 +43,7 @@
                 ASAP.
             </p>
         </div>
-        <CButton v-if="scheduler" color="success" value="new_shift">New Shift</CButton>
+        <CButton @click="$router.push('shifts/new')" v-if="scheduler" color="success" value="new_shift">New Shift</CButton>
         <CButton color="primary" variant="outline" value = "show_all">Show All Shifts</CButton>
         <CButton color="primary" variant="outline" value = "show_current">Show Current Shifts</CButton>
         <div>
@@ -135,6 +135,7 @@
     components: { CButton }
 }
 </script>
+
 <style scoped>
 .well {
 

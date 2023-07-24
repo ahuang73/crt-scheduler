@@ -9,11 +9,7 @@ import  {CNavbar, CContainer, CNavbarBrand, CNavbarToggler, CCollapse,CNavbarNav
     <CNavbarToggler @click="visible = !visible"/>
     <CCollapse class="navbar-collapse" :visible="visible">
       <CNavbarNav>
-        <CNavItem>
-          <CNavLink href="/" active>
-            Home
-          </CNavLink>
-        </CNavItem>
+
         <CNavItem>
           <CNavLink href="/shifts">Shifts</CNavLink>
         </CNavItem>
