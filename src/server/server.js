@@ -2,7 +2,7 @@ import { MongoClient, ServerApiVersion } from 'mongodb'
 
 
 
-const uri = "mongodb+srv://test:CampusResponseTeam@cluster0.k8ipie7.mongodb.net/?retryWrites=true&w=majority";
+const uri = "mongodb+srv://crt_user:qWYXJj1KOtWkG61J@crt-data.olatvi5.mongodb.net/?retryWrites=true&w=majority";
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
@@ -24,23 +24,60 @@ async function run() {
   }
 }
 
-async function fetch_shift_data(){
-  const db = client.db("admin")
-  const collection = db.collection('mycollection');
-  collection.find({}).toArray((err, data) => {
-    if (err) {
-      console.error('Error fetching data:', err);
-    } else {
-      // Pass the data to your frontend
-      // Typically, you would expose this data as an API or a route
-      // in your backend (e.g., using Express.js) for the frontend to access.
-      // Here, we'll simply log the data.
-      console.log(data);
+async function fetch_shift_data() {
+  try {
+    await client.connect();
+    const db = client.db("CRT-Data")
+    const collection = db.collection('shifts');
+    const query = {}; // You can specify a query to filter data
 
-      // Close the database connection
-      client.close();
-    }
-  });
+    const cursor = collection.find(query);
+
+    // Loop through the cursor and output data to the console
+    await cursor.forEach(document => {
+      console.log(document);
+    });
+  } catch (err) {
+    console.error('Error:', err);
+  } finally {
+    // Close the MongoDB connection
+    client.close();
+  }
+
 
 }
-run().catch(console.dir);
+
+async function store_shift() {
+  try {
+    // Connect the client to the server	(optional starting in v4.7)
+    await client.connect();
+    // Send a ping to confirm a successful connection
+    const db = client.db("CRT-Data")
+    const collection = db.collection("shifts");
+    const sampleShiftData = {
+      Date: "01-01-01",
+      Name: "Test A",
+      Location: "AB",
+      Start_Time: "10:00",
+      End_Time: "15:00",
+      Primary: "John",
+      Secondary: "Jack",
+      Rookie: "James",
+      Type: "Regular"
+    }
+    await collection.insertOne(sampleShiftData, function (err, result) {
+      if (err) {
+        console.error('Error inserting data:', err);
+      } else {
+        console.log('Inserted a document with the ID:', result.insertedId);
+      }
+    });
+
+
+  } finally {
+    // Ensures that the client will close when you finish/error
+    await client.close();
+  }
+
+}
+fetch_shift_data().catch(console.dir);
