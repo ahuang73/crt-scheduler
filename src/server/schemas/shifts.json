@@ -1,0 +1,16 @@
+{
+    "bsonType": "String",
+    "title": "<Type Name>",
+    "required": ["<Required Field Name>"],
+    "properties": {
+      "Date": "DD-MM-YY",
+      "Name": "",
+      "Location": "",
+      "Start_Time":"",
+      "End_Time":"",
+      "Primary":"",
+      "Secondary":"",
+      "Rookie": "",
+      "Type": ""
+    }
+}
