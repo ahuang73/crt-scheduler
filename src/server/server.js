@@ -1,7 +1,8 @@
 import { MongoClient, ServerApiVersion } from 'mongodb'
-
-
-
+import express from 'express';
+import cors from 'cors';
+const app = express()
+const port = process.env.PORT || 3000;
 const uri = "mongodb+srv://crt_user:qWYXJj1KOtWkG61J@crt-data.olatvi5.mongodb.net/?retryWrites=true&w=majority";
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -11,18 +12,30 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   }
 });
-async function run() {
+const dbName = "CRT-Data"
+
+app.use(express.json());
+app.use(cors());
+app.get('/api/shiftsdata', async (req, res) => {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
+
+    const db = client.db(dbName);
+    const collection = db.collection("shifts");
+
+    const shifts = await collection.find({}).toArray();
+    res.json(shifts);
+  } catch (error) {
+    console.error('Error fetching shifts:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
-}
+});
+
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
+
+
 
 async function fetch_shift_data() {
   try {
@@ -80,4 +93,3 @@ async function store_shift() {
   }
 
 }
-fetch_shift_data().catch(console.dir);

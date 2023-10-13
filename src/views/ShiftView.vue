@@ -1,6 +1,6 @@
 <script setup lang="ts">
-    import {CButton, CTable, CProgress, CProgressBar} from '@coreui/vue';
-    
+import { CButton, CTable, CProgress, CProgressBar } from '@coreui/vue';
+
 </script>
 
 <template>
@@ -44,19 +44,30 @@
             </p>
         </div>
         <CButton @click="$router.push('shifts/new')" v-if="scheduler" color="success" value="new_shift">New Shift</CButton>
-        <CButton color="primary" variant="outline" value = "show_all">Show All Shifts</CButton>
-        <CButton color="primary" variant="outline" value = "show_current">Show Current Shifts</CButton>
+        <CButton color="primary" variant="outline" value="show_all">Show All Shifts</CButton>
+        <CButton color="primary" variant="outline" value="show_current">Show Current Shifts</CButton>
         <div>
             <CTable :columns="columns" :items="items" />
         </div>
 
     </div>
-
 </template>
 
 
 <script lang="ts">
-  export default {
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
+const shifts_data = ref([]);
+
+try {
+    const response = await axios.get('http://localhost:3000/api/shiftsdata');
+    shifts_data.value = response.data;
+    console.log(shifts_data)
+} catch (error) {
+    console.error('Error fetching shift data:', error);
+}
+
+export default {
     data: () => {
         return {
             scheduler: true,
@@ -164,7 +175,8 @@ p {
 }
 
 div {
-    margin-top:40px;
+    margin-top: 40px;
     display: block;
     width: 100%;
-}</style>
+}
+</style>

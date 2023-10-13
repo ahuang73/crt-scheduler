@@ -12,7 +12,13 @@
   "dependencies": {
     "@coreui/coreui": "^4.2.6",
     "@coreui/vue": "^4.8.1",
+    "@vuepic/vue-datepicker": "^5.4.0",
+    "axios": "^1.5.1",
     "bootstrap": "^5.3.0",
+    "bootstrap-vue": "^2.23.1",
+    "express": "^4.18.2",
+    "mongodb": "^6.1.0",
+    "mongoose": "^7.5.2",
     "vue": "^3.3.2",
     "vue-router": "^4.2.0"
   },
