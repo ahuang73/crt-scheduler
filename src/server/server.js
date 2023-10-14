@@ -30,7 +30,43 @@ app.get('/api/shiftsdata', async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+app.get('/api/shiftsdata', async (req, res) => {
+  try {
+    await client.connect();
 
+    const db = client.db(dbName);
+    const collection = db.collection("shifts");
+
+    const shifts = await collection.find({}).toArray();
+    res.json(shifts);
+  } catch (error) {
+    console.error('Error fetching shifts:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.post('/api/shiftsdata', async (req, res) => {
+  try {
+    await client.connect();
+    const db = client.db(dbName);
+    const collection = db.collection('shifts');
+    
+    // Extract shift data from the request body
+    const shiftData = req.body;
+
+    // Insert the shift data into the MongoDB collection
+    const result = await collection.insertOne(shiftData);
+
+    // Respond with the ID of the inserted document
+    res.json({ _id: result.insertedId });
+  } catch (error) {
+    console.error('Error creating shift:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  } finally {
+    // Close the MongoDB connection
+    client.close();
+  }
+});
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });

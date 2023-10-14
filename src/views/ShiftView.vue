@@ -47,7 +47,7 @@ import { CButton, CTable, CProgress, CProgressBar } from '@coreui/vue';
         <CButton color="primary" variant="outline" value="show_all">Show All Shifts</CButton>
         <CButton color="primary" variant="outline" value="show_current">Show Current Shifts</CButton>
         <div>
-            <CTable :columns="columns" :items="items" />
+            <CTable :columns="columns" :items="shifts_data" />
         </div>
 
     </div>
@@ -110,37 +110,8 @@ export default {
                     key: "Type",
                     _props: { scope: "col" },
                 },
-            ],
-            items: [
-                {
-                    Date: "DD-MM-YY",
-                    Name: "Test Shift",
-                    Location: "Otto",
-                    Start: "11:00",
-                    End: "23:00",
-                    Primary: "p1",
-                    Secondary: "s1",
-                    Rookie: "r1",
-                    Type: "Regular"
-                },
-                {
-                    Date: "DD-MM-YY",
-                    Name: "Test Shift 2",
-                    Location: "Otto",
-                    Start: "11:00",
-                    End: "23:00",
-                    Primary: "p2",
-                    Secondary: "s2",
-                    Rookie: "Take Shift ",
-                    Type: "Regular"
-                },
-                {
-                    id: 3,
-                    class: "Larry the Bird",
-                    heading_2: "@twitter",
-                    _cellProps: { id: { scope: "row" }, class: { colSpan: 2 } },
-                },
             ]
+            
         };
     },
     components: { CButton }

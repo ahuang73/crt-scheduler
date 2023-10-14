@@ -11,108 +11,141 @@ import '@vuepic/vue-datepicker/dist/main.css';
         <h1>New Shift</h1>
     </div>
     <div class="well">
-        <CForm>
-            <div class = "outer">
-                <CFormLabel for="name">Name</CFormLabel>
-                <CFormInput type="text" id="name" placeholder="" />
+        <CForm @submit="submitForm">
+            <div class="outer">
+                <CFormLabel for="Name">Name</CFormLabel>
+                <CFormInput type="text" id="Name" placeholder="" />
             </div>
             <div>
-                <CFormLabel for="name">Location</CFormLabel>
-                <CFormInput type="text" id="name" placeholder="" />
+                <CFormLabel for="Location">Location</CFormLabel>
+                <CFormInput type="text" id="Location" placeholder="" />
             </div>
-            
-            <div class = "outer">
+
+            <div class="outer">
                 Shift Type
                 <div>
-                <CDropdown>               
-                <CDropdownToggle color="primary" variant="outline"> Shift Type</CDropdownToggle>
-                <CDropdownMenu>
-                    <CDropdownItem href="">Regular</CDropdownItem>
-                    <CDropdownItem href="#">Supervisor</CDropdownItem>
-                    <CDropdownItem href="#">Training</CDropdownItem>
-                    <CDropdownItem href="#">Debrief</CDropdownItem>
-                    <CDropdownItem href="#">AnP</CDropdownItem>
-                </CDropdownMenu>
-                </CDropdown>
+                    <CDropdown v-model="formData.Type">
+                        <CDropdownToggle color="primary" variant="outline" id="Type"> Shift Type</CDropdownToggle>
+                        <CDropdownMenu>
+                            <CDropdownItem value="Regular">Regular</CDropdownItem>
+                            <CDropdownItem value="Supervisor">Supervisor</CDropdownItem>
+                            <CDropdownItem value="Training">Training</CDropdownItem>
+                            <CDropdownItem value="Debrief">Debrief</CDropdownItem>
+                            <CDropdownItem value="AnP">AnP</CDropdownItem>
+                        </CDropdownMenu>
+                    </CDropdown>
                 </div>
             </div>
-            
-            <div class = "outer">
+
+            <div class="outer">
                 <CFormLabel for="date"> Start Date </CFormLabel>
-                <VueDatePicker v-model ="date"></VueDatePicker>
+                <VueDatePicker v-model="formData.Start"></VueDatePicker>
             </div>
 
-            <div class = "outer">
+            <div class="outer">
                 <CFormLabel for="date"> End Date </CFormLabel>
-                <VueDatePicker v-model ="date"></VueDatePicker>
+                <VueDatePicker v-model="formData.End"></VueDatePicker>
             </div>
-            <div class = "outer">
+            <div class="outer">
                 Primary
                 <div>
-                <CDropdown>               
-                <CDropdownToggle color="primary" variant="outline">Primary</CDropdownToggle>
-                <CDropdownMenu>
-                    <CDropdownItem href="">A</CDropdownItem>
-                    <CDropdownItem href="#">B</CDropdownItem>
-                    <CDropdownItem href="#">C</CDropdownItem>
-                    <CDropdownItem href="#">D</CDropdownItem>
-                    <CDropdownItem href="#">E</CDropdownItem>
-                </CDropdownMenu>
-                </CDropdown>
+                    <CDropdown v-model="formData.Primary">
+                        <CDropdownToggle color="primary" variant="outline">Primary</CDropdownToggle>
+                        <CDropdownMenu>
+                            <CDropdownItem value="John">John</CDropdownItem>
+                        </CDropdownMenu>
+                    </CDropdown>
                 </div>
             </div>
-            <div class = "outer">
+            <div class="outer">
                 Secondary
                 <div>
-                <CDropdown>               
-                <CDropdownToggle color="primary" variant="outline">Secondary</CDropdownToggle>
-                <CDropdownMenu>
-                    <CDropdownItem href="">A</CDropdownItem>
-                    <CDropdownItem href="#">B</CDropdownItem>
-                    <CDropdownItem href="#">C</CDropdownItem>
-                    <CDropdownItem href="#">D</CDropdownItem>
-                    <CDropdownItem href="#">E</CDropdownItem>
-                </CDropdownMenu>
-                </CDropdown>
+                    <CDropdown  v-model="formData.Secondary">
+                        <CDropdownToggle color="primary" variant="outline">Secondary</CDropdownToggle>
+                        <CDropdownMenu>
+                            <CDropdownItem value="Jack">Jack</CDropdownItem>
+                        </CDropdownMenu>
+                    </CDropdown>
                 </div>
             </div>
 
-            <div class = "outer">
+            <div class="outer">
                 Rookie
                 <div>
-                <CDropdown>               
-                <CDropdownToggle color="primary" variant="outline">Rookie</CDropdownToggle>
-                <CDropdownMenu>
-                    <CDropdownItem href="">A</CDropdownItem>
-                    <CDropdownItem href="#">B</CDropdownItem>
-                    <CDropdownItem href="#">C</CDropdownItem>
-                    <CDropdownItem href="#">D</CDropdownItem>
-                    <CDropdownItem href="#">E</CDropdownItem>
-                </CDropdownMenu>
-                </CDropdown>
+                    <CDropdown  v-model="formData.Rookie">
+                        <CDropdownToggle color="primary" variant="outline">Rookie</CDropdownToggle>
+                        <CDropdownMenu>
+                            <CDropdownItem value="James">James</CDropdownItem>
+                        </CDropdownMenu>
+                    </CDropdown>
                 </div>
             </div>
-            <CFormLabel for="Description">Description</CFormLabel>
+            <CFormLabel for="Description"  v-model="formData.Description">Description</CFormLabel>
             <CFormTextarea id="Description" rows="3"></CFormTextarea>
             <div>
-                <CFormLabel for="splitlength">Split Length(Minutes)</CFormLabel>
+                <CFormLabel for="splitlength"  v-model="formData.Split">Split Length(Minutes)</CFormLabel>
                 <CFormInput type="text" id="splitlength" placeholder="" />
             </div>
-            <CButton color="success" value="new_shift" >Create</CButton>
+            <CButton color="success" value="new_shift">Create</CButton>
         </CForm>
-        
+
     </div>
 </template>
 
 
 <script lang="ts">
+
+
 export default {
-  components: { VueDatePicker },
-  data() {
-    return {
-      date: null,
-    };
-  }
+    components: { VueDatePicker },
+    data() {
+        return {
+            formData: {
+                Name: "",
+                Date: "",
+                Location: "",
+                Start: "",
+                End: "",
+                Primary: "",
+                Secondary: "",
+                Rookie: "",
+                Type: "",
+                Description: "",
+                Split: "",
+            }
+        };
+    },
+    methods: {
+        async submitForm() {
+            try {
+                // Send formData to your backend API to save in MongoDB
+                const response = await axios.post('/api/shiftdata', this.formData);
+                console.log('Shift created:', response.data);
+
+                // Optionally, reset the form after a successful submission
+                this.resetForm();
+            } catch (error) {
+                console.error('Error creating shift:', error);
+            }
+        },
+        resetForm() {
+            // Reset form fields to their initial state
+            this.formData = {
+                Name:"",
+                Date: "",
+                Location: "",
+                Start: "",
+                End: "",
+                Primary: "",
+                Secondary: "",
+                Rookie: "",
+                Type: "",
+                Description: "",
+                Split: "",
+            };
+        }
+
+    }
 }
 
 </script>
@@ -137,8 +170,8 @@ export default {
     -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
 }
-.outer{
+
+.outer {
     margin-top: 10px;
 }
-
 </style>
