@@ -59,7 +59,7 @@ import { CButton, CTable, CProgress, CProgressBar } from '@coreui/vue';
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 const shifts_data = ref([]);
-const showCurrentShifts = ref(false);
+const showCurrentShifts = ref(true);
 const showAllShifts = () => {
     showCurrentShifts.value = false;
 };
