@@ -85,24 +85,16 @@ import { ref } from 'vue';
             <CFormTextarea v-model="formData.Description" id="Description" rows="3"></CFormTextarea>
             <div>
                 <CFormLabel for="splitlength" >Split Length(Minutes)</CFormLabel>
-                <CFormInput v-model="formData.Split" type="text" id="splitlength" placeholder="" />
+                <CFormInput v-model="tempData.Split" type="text" id="splitlength" placeholder="" />
             </div>
             <CButton type="submit" color="success" value="new_shift">Create</CButton>
         </CForm>
-        <!-- Success message popup -->
-        <div v-show="successPopup" class="popup">
-            <div class="popup-content">
-                <p>{{ successMessage }}</p>
-                <button @click="closeSuccessPopup">Close</button>
-            </div>
-        </div>
+
     </div>
 </template>
 
 
 <script lang="ts">
-let successPopup =false; // Initialize the success popup as hidden
-let successMessage = '';
 
 export default {
     components: { VueDatePicker },
@@ -119,11 +111,12 @@ export default {
                 Rookie: "Rookie",
                 Type: "Select",
                 Description: "",
-                Split: "",
+                
             },
             tempData: {
                 Start: ref(new Date()),
-                End: ref(new Date())
+                End: ref(new Date()),
+                Split: "",
             }
         };
     },
@@ -140,23 +133,19 @@ export default {
                 this.formData.Start= tempStart.getHours()+':'+tempStart.getMinutes() 
                 this.formData.End = tempEnd.getHours()+':'+tempEnd.getMinutes()
 
-                
+
                 // Send formData to your backend API to save in MongoDB
                 const response = await axios.post('http://localhost:3000/api/shiftsdata', this.formData);
                 console.log('Shift created:', response.data, this.formData,this.tempData);
                 
-                
-                successMessage = 'Shift created successfully!';
-                successPopup = true;
+
                 
                 //this.resetForm();
             } catch (error) {
                 console.error('Error creating shift:', error);
             }
         },
-        closeSuccessPopup() {
-            successPopup = false;
-        },
+  
 
         resetForm() {
             // Reset form fields to their initial state
@@ -171,12 +160,9 @@ export default {
                 Rookie: "",
                 Type: "",
                 Description: "",
-                Split: "",
+
             };
-            this.tempData = {
-                Start: "",
-                End: ""
-            };
+
         }
 
     }
