@@ -62,7 +62,7 @@ const shifts_data = ref([]);
 try {
     const response = await axios.get('http://localhost:3000/api/shiftsdata');
     shifts_data.value = response.data;
-    console.log(shifts_data)
+    console.log(shifts_data.value)
 } catch (error) {
     console.error('Error fetching shift data:', error);
 }

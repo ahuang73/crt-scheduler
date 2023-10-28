@@ -2,7 +2,8 @@
 import { CForm, CFormLabel, CFormTextarea, CFormInput, CDropdown, CDropdownToggle, CDropdownItem, CDropdownMenu, CButton } from '@coreui/vue';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
-
+import axios from 'axios';
+import { ref } from 'vue';
 
 </script>
 
@@ -14,24 +15,24 @@ import '@vuepic/vue-datepicker/dist/main.css';
         <CForm @submit="submitForm">
             <div class="outer">
                 <CFormLabel for="Name">Name</CFormLabel>
-                <CFormInput type="text" id="Name" placeholder="" />
+                <CFormInput v-model="formData.Name" type="text" id="Name" placeholder="" />
             </div>
             <div>
                 <CFormLabel for="Location">Location</CFormLabel>
-                <CFormInput type="text" id="Location" placeholder="" />
+                <CFormInput v-model="formData.Location"  type="text" id="Location" placeholder="" />
             </div>
 
             <div class="outer">
                 Shift Type
                 <div>
                     <CDropdown v-model="formData.Type">
-                        <CDropdownToggle color="primary" variant="outline" id="Type"> Shift Type</CDropdownToggle>
+                        <CDropdownToggle color="primary" variant="outline" id="Type">{{ formData.Type }}</CDropdownToggle>
                         <CDropdownMenu>
-                            <CDropdownItem value="Regular">Regular</CDropdownItem>
-                            <CDropdownItem value="Supervisor">Supervisor</CDropdownItem>
-                            <CDropdownItem value="Training">Training</CDropdownItem>
-                            <CDropdownItem value="Debrief">Debrief</CDropdownItem>
-                            <CDropdownItem value="AnP">AnP</CDropdownItem>
+                            <CDropdownItem @click="formData.Type = 'Regular'">Regular</CDropdownItem>
+                            <CDropdownItem @click="formData.Type = 'Supervisor'">Supervisor</CDropdownItem>
+                            <CDropdownItem @click="formData.Type = 'Training'">Training</CDropdownItem>
+                            <CDropdownItem @click="formData.Type = 'Debrief'">Debrief</CDropdownItem>
+                            <CDropdownItem @click="formData.Type = 'AnP'">AnP</CDropdownItem>
                         </CDropdownMenu>
                     </CDropdown>
                 </div>
@@ -39,20 +40,20 @@ import '@vuepic/vue-datepicker/dist/main.css';
 
             <div class="outer">
                 <CFormLabel for="date"> Start Date </CFormLabel>
-                <VueDatePicker v-model="formData.Start"></VueDatePicker>
+                <VueDatePicker v-model="tempData.Start" ></VueDatePicker>
             </div>
 
             <div class="outer">
                 <CFormLabel for="date"> End Date </CFormLabel>
-                <VueDatePicker v-model="formData.End"></VueDatePicker>
+                <VueDatePicker v-model="tempData.End"></VueDatePicker>
             </div>
             <div class="outer">
                 Primary
                 <div>
                     <CDropdown v-model="formData.Primary">
-                        <CDropdownToggle color="primary" variant="outline">Primary</CDropdownToggle>
+                        <CDropdownToggle color="primary" variant="outline">{{ formData.Primary }}</CDropdownToggle>
                         <CDropdownMenu>
-                            <CDropdownItem value="John">John</CDropdownItem>
+                            <CDropdownItem @click="formData.Primary = 'John'">John</CDropdownItem>
                         </CDropdownMenu>
                     </CDropdown>
                 </div>
@@ -60,10 +61,10 @@ import '@vuepic/vue-datepicker/dist/main.css';
             <div class="outer">
                 Secondary
                 <div>
-                    <CDropdown  v-model="formData.Secondary">
-                        <CDropdownToggle color="primary" variant="outline">Secondary</CDropdownToggle>
+                    <CDropdown v-model="formData.Secondary">
+                        <CDropdownToggle color="primary" variant="outline">{{ formData.Secondary }}</CDropdownToggle>
                         <CDropdownMenu>
-                            <CDropdownItem value="Jack">Jack</CDropdownItem>
+                            <CDropdownItem @click="formData.Secondary = 'Jack'">Jack</CDropdownItem>
                         </CDropdownMenu>
                     </CDropdown>
                 </div>
@@ -72,29 +73,36 @@ import '@vuepic/vue-datepicker/dist/main.css';
             <div class="outer">
                 Rookie
                 <div>
-                    <CDropdown  v-model="formData.Rookie">
-                        <CDropdownToggle color="primary" variant="outline">Rookie</CDropdownToggle>
+                    <CDropdown v-model="formData.Rookie">
+                        <CDropdownToggle color="primary" variant="outline">{{ formData.Rookie }}</CDropdownToggle>
                         <CDropdownMenu>
-                            <CDropdownItem value="James">James</CDropdownItem>
+                            <CDropdownItem @click="formData.Rookie = 'James'">James</CDropdownItem>
                         </CDropdownMenu>
                     </CDropdown>
                 </div>
             </div>
-            <CFormLabel for="Description"  v-model="formData.Description">Description</CFormLabel>
-            <CFormTextarea id="Description" rows="3"></CFormTextarea>
+            <CFormLabel for="Description" >Description</CFormLabel>
+            <CFormTextarea v-model="formData.Description" id="Description" rows="3"></CFormTextarea>
             <div>
-                <CFormLabel for="splitlength"  v-model="formData.Split">Split Length(Minutes)</CFormLabel>
-                <CFormInput type="text" id="splitlength" placeholder="" />
+                <CFormLabel for="splitlength" >Split Length(Minutes)</CFormLabel>
+                <CFormInput v-model="formData.Split" type="text" id="splitlength" placeholder="" />
             </div>
-            <CButton color="success" value="new_shift">Create</CButton>
+            <CButton type="submit" color="success" value="new_shift">Create</CButton>
         </CForm>
-
+        <!-- Success message popup -->
+        <div v-show="successPopup" class="popup">
+            <div class="popup-content">
+                <p>{{ successMessage }}</p>
+                <button @click="closeSuccessPopup">Close</button>
+            </div>
+        </div>
     </div>
 </template>
 
 
 <script lang="ts">
-
+let successPopup =false; // Initialize the success popup as hidden
+let successMessage = '';
 
 export default {
     components: { VueDatePicker },
@@ -106,32 +114,54 @@ export default {
                 Location: "",
                 Start: "",
                 End: "",
-                Primary: "",
-                Secondary: "",
-                Rookie: "",
-                Type: "",
+                Primary: "Primary",
+                Secondary: "Secondary",
+                Rookie: "Rookie",
+                Type: "Select",
                 Description: "",
                 Split: "",
+            },
+            tempData: {
+                Start: ref(new Date()),
+                End: ref(new Date())
             }
         };
     },
     methods: {
         async submitForm() {
+            event?.preventDefault();
             try {
-                // Send formData to your backend API to save in MongoDB
-                const response = await axios.post('/api/shiftdata', this.formData);
-                console.log('Shift created:', response.data);
 
-                // Optionally, reset the form after a successful submission
-                this.resetForm();
+                let tempStart = this.tempData.Start
+                let tempEnd = this.tempData.End
+                //Still need to handle start/end dates not being equal here
+                
+                this.formData.Date = tempStart.getDate()+'-'+tempStart.getMonth()+ '-'+tempStart.getFullYear()
+                this.formData.Start= tempStart.getHours()+':'+tempStart.getMinutes() 
+                this.formData.End = tempEnd.getHours()+':'+tempEnd.getMinutes()
+
+                
+                // Send formData to your backend API to save in MongoDB
+                const response = await axios.post('http://localhost:3000/api/shiftsdata', this.formData);
+                console.log('Shift created:', response.data, this.formData,this.tempData);
+                
+                
+                successMessage = 'Shift created successfully!';
+                successPopup = true;
+                
+                //this.resetForm();
             } catch (error) {
                 console.error('Error creating shift:', error);
             }
         },
+        closeSuccessPopup() {
+            successPopup = false;
+        },
+
         resetForm() {
             // Reset form fields to their initial state
             this.formData = {
-                Name:"",
+                Name: "",
                 Date: "",
                 Location: "",
                 Start: "",
@@ -142,6 +172,10 @@ export default {
                 Type: "",
                 Description: "",
                 Split: "",
+            };
+            this.tempData = {
+                Start: "",
+                End: ""
             };
         }
 
