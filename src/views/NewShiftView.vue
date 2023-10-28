@@ -19,7 +19,7 @@ import { ref } from 'vue';
             </div>
             <div>
                 <CFormLabel for="Location">Location</CFormLabel>
-                <CFormInput v-model="formData.Location"  type="text" id="Location" placeholder="" />
+                <CFormInput v-model="formData.Location" type="text" id="Location" placeholder="" />
             </div>
 
             <div class="outer">
@@ -40,7 +40,7 @@ import { ref } from 'vue';
 
             <div class="outer">
                 <CFormLabel for="date"> Start Date </CFormLabel>
-                <VueDatePicker v-model="tempData.Start" ></VueDatePicker>
+                <VueDatePicker v-model="tempData.Start"></VueDatePicker>
             </div>
 
             <div class="outer">
@@ -81,10 +81,10 @@ import { ref } from 'vue';
                     </CDropdown>
                 </div>
             </div>
-            <CFormLabel for="Description" >Description</CFormLabel>
+            <CFormLabel for="Description">Description</CFormLabel>
             <CFormTextarea v-model="formData.Description" id="Description" rows="3"></CFormTextarea>
             <div>
-                <CFormLabel for="splitlength" >Split Length(Minutes)</CFormLabel>
+                <CFormLabel for="splitlength">Split Length(Minutes)</CFormLabel>
                 <CFormInput v-model="tempData.Split" type="text" id="splitlength" placeholder="" />
             </div>
             <CButton type="submit" color="success" value="new_shift">Create</CButton>
@@ -111,7 +111,7 @@ export default {
                 Rookie: "Rookie",
                 Type: "Select",
                 Description: "",
-                
+
             },
             tempData: {
                 Start: ref(new Date()),
@@ -128,24 +128,28 @@ export default {
                 let tempStart = this.tempData.Start
                 let tempEnd = this.tempData.End
                 //Still need to handle start/end dates not being equal here
-                
-                this.formData.Date = tempStart.getDate()+'-'+tempStart.getMonth()+ '-'+tempStart.getFullYear()
-                this.formData.Start= tempStart.getHours()+':'+tempStart.getMinutes() 
-                this.formData.End = tempEnd.getHours()+':'+tempEnd.getMinutes()
+
+                this.formData.Date = tempStart.getDate() + '-' + (tempStart.getMonth()+1) + '-' + tempStart.getFullYear()
+                this.formData.Start = tempStart.getHours() + ':' + tempStart.getMinutes()
+                this.formData.End = tempEnd.getHours() + ':' + tempEnd.getMinutes()
 
 
                 // Send formData to your backend API to save in MongoDB
                 const response = await axios.post('http://localhost:3000/api/shiftsdata', this.formData);
-                console.log('Shift created:', response.data, this.formData,this.tempData);
-                
+                console.log('Shift created:', response.data, this.formData, this.tempData);
 
-                
+                this.$router.push('/shifts')
+                setTimeout(() => {
+                    window.location.reload();
+                }, 10);
+
+
                 //this.resetForm();
             } catch (error) {
                 console.error('Error creating shift:', error);
             }
         },
-  
+
 
         resetForm() {
             // Reset form fields to their initial state

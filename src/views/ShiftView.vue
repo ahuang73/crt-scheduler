@@ -44,10 +44,11 @@ import { CButton, CTable, CProgress, CProgressBar } from '@coreui/vue';
             </p>
         </div>
         <CButton @click="$router.push('shifts/new')" v-if="scheduler" color="success" value="new_shift">New Shift</CButton>
-        <CButton color="primary" variant="outline" value="show_all">Show All Shifts</CButton>
-        <CButton color="primary" variant="outline" value="show_current">Show Current Shifts</CButton>
+        <CButton color="primary" variant="outline" value="show_all" @click="showAllShifts">Show All Shifts</CButton>
+        <CButton color="primary" variant="outline" value="show_current" @click="showCurrShifts">Show Current Shifts
+        </CButton>
         <div>
-            <CTable :columns="columns" :items="shifts_data" />
+            <CTable :columns="columns" :items="filteredShifts" />
         </div>
 
     </div>
@@ -55,10 +56,17 @@ import { CButton, CTable, CProgress, CProgressBar } from '@coreui/vue';
 
 
 <script lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 const shifts_data = ref([]);
+const showCurrentShifts = ref(false);
+const showAllShifts = () => {
+    showCurrentShifts.value = false;
+};
 
+const showCurrShifts = () => {
+    showCurrentShifts.value = true;
+};
 try {
     const response = await axios.get('http://localhost:3000/api/shiftsdata');
     shifts_data.value = response.data;
@@ -66,6 +74,29 @@ try {
 } catch (error) {
     console.error('Error fetching shift data:', error);
 }
+const filteredShifts = computed(() => {
+    let today = new Date();
+
+    const filtered: any[] = [];
+
+    for (const shift of shifts_data.value) {
+       
+        const [day2, month2, year2] = shift.Date.split('-').map(Number);
+        const [hour2, minute2] = shift.End.split(':').map(Number);
+        const shiftDate = new Date(year2, month2-1, day2, hour2, minute2)
+        console.log("Shift Date: " + shiftDate, "TODAY: " + today)
+        
+        if (showCurrentShifts.value && shiftDate >= today) {
+            filtered.push(shift);
+        } else if (!showCurrentShifts.value) {
+            
+            filtered.push(shift);
+        }
+    }
+
+    return filtered;
+});
+
 
 export default {
     data: () => {
@@ -111,7 +142,7 @@ export default {
                     _props: { scope: "col" },
                 },
             ]
-            
+
         };
     },
     components: { CButton }
