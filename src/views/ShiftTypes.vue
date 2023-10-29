@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { CButton, CTable } from '@coreui/vue';
+import axios from 'axios';
+import { ref } from 'vue';
 
 </script>
 
@@ -9,10 +11,18 @@ import { CButton, CTable } from '@coreui/vue';
     </div>
     <div>
         <CButton @click="$router.push('shift_types/new')" color="success" value = "show_all">New Shift Type</CButton>
-        <CTable :columns="columns" :items="items" />
+        <CTable :columns="columns" :items="shift_types" />
     </div>
 </template>
 <script lang="ts">
+    const shift_types = ref([]);
+    try {
+        const response = await axios.get('http://localhost:3000/api/shifttypedata');
+        shift_types.value = response.data;
+        console.log(shift_types.value)
+    } catch (error) {
+        console.error('Error fetching shift types:', error);
+    }
   export default {
     data: () => {
         return {
@@ -111,6 +121,7 @@ import { CButton, CTable } from '@coreui/vue';
             ]
         };
     },
+    
     components: { CButton }
 }
 </script>

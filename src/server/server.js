@@ -64,6 +64,7 @@ app.get('/api/shifttypedata', async (req, res) => {
 
     const shifts = await collection.find({}).toArray();
     res.json(shifts);
+    console.log("Shift Type GET")
   } catch (error) {
     console.error('Error fetching shifts:', error);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -84,6 +85,7 @@ app.post('/api/shifttypedata', async (req, res) => {
 
     // Respond with the ID of the inserted document
     res.json({ _id: result.insertedId });
+    console.log("Shift Type POST")
   } catch (error) {
     console.error('Error creating shift:', error);
     res.status(500).json({ error: 'Internal Server Error' });
