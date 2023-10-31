@@ -95,6 +95,46 @@ app.post('/api/shifttypedata', async (req, res) => {
   }
 });
 
+app.get('/api/responderdata', async (req, res) => {
+  try {
+    await client.connect();
+
+    const db = client.db(dbName);
+    const collection = db.collection("responders");
+
+    const shifts = await collection.find({}).toArray();
+    res.json(shifts);
+    console.log("Responder GET")
+  } catch (error) {
+    console.error('Error fetching shifts:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.post('/api/responderdata', async (req, res) => {
+  try {
+    await client.connect();
+    const db = client.db(dbName);
+    const collection = db.collection('responders');
+    
+    // Extract shift data from the request body
+    const shiftTypeData = req.body;
+
+    // Insert the shift data into the MongoDB collection
+    const result = await collection.insertOne(shiftTypeData);
+
+    // Respond with the ID of the inserted document
+    res.json({ _id: result.insertedId });
+    console.log("Responder POST")
+  } catch (error) {
+    console.error('Error creating shift:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  } finally {
+    // Close the MongoDB connection
+    client.close();
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });

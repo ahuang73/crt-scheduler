@@ -1,51 +1,62 @@
 <script setup lang="ts">
-    import  { CButton, CForm, CFormInput, CTable } from '@coreui/vue';
+import { CButton, CForm, CFormInput, CTable } from '@coreui/vue';
+import axios from 'axios';
+import { ref } from 'vue';
 </script>
 
 <template>
-
     <div class="page-header">
         <h1>Responders</h1>
-        
+
     </div>
-    
+
     <CForm>
-        
-        <CFormInput  type="text" id ="search" label="Search Responder" aria-placeholder="Search Responder"/>
-        <CButton @click="$router.push('responders/new')" color="primary" variant="outline" value = "show_all">New Responder</CButton>
+
+        <CFormInput type="text" id="search" label="Search Responder" aria-placeholder="Search Responder" />
+        <CButton @click="$router.push('responders/new')" color="primary" variant="outline" value="show_all">New Responder
+        </CButton>
     </CForm>
 
-    <CTable :columns="columns" :items="items" />
-       
-
-
-    
+    <CTable :columns="columns" :items="responders" />
 </template>
 <script lang="ts">
-  export default {
+const responders = ref([]);
+try {
+    const response = await axios.get('http://localhost:3000/api/responderdata');
+    responders.value = response.data;
+
+} catch (error) {
+    console.error('Error fetching shift types:', error);
+}
+
+export default {
     data: () => {
         return {
             scheduler: true,
             columns: [
                 {
-                    key: "Name",
+                    key: "name",
+                    label:"Name",
                     _props: { scope: "col" },
                 },
                 {
-                    key: "Supervisor",
+                    key: "supervisor",
+                    label:"Supervisor",
                     _props: { scope: "col" },
                 },
                 {
-                    key: "Training",
+                    key: "training",
+                    label:"Training",
                     _props: { scope: "col" },
                 },
                 {
-                    key: "Debrief",
+                    key: "debrief",
+                    label:"Debrief",
                     _props: { scope: "col" },
                 },
                 {
-                    key: "AnP",
-                    label:"AnP",
+                    key: "anp",
+                    label: "AnP",
                     _props: { scope: "col" },
                 },
                 {
@@ -54,7 +65,7 @@
                 },
                 {
                     key: "cert_exp",
-                    label:"Cert Expiration",
+                    label: "Cert Expiration",
                     _props: { scope: "col" },
                 },
                 {
@@ -81,7 +92,7 @@
                     Training: "0.0",
                     Debrief: "0.0",
                     AnP: "0.0",
-                    Regular:"10.0",
+                    Regular: "10.0",
                     cert_exp: "1000 days",
                     Rank: "Primary",
                     Suspended: "Suspended",
@@ -94,7 +105,7 @@
                     Training: "0.0",
                     Debrief: "0.0",
                     AnP: "0.0",
-                    Regular:"0.0",
+                    Regular: "0.0",
                     cert_exp: "1000 days",
                     Rank: "Primary",
                     Suspended: "Suspended",
@@ -126,5 +137,4 @@
     margin: 80px 0 30px;
     border-bottom: 1px solid #eee;
 }
-
 </style>

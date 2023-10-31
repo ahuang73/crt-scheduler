@@ -25,7 +25,7 @@ import axios from 'axios';
             </div>
             <div>
                 <CFormLabel for="name">Days Preceeding for Shift to Become Critical</CFormLabel>
-                <CFormInput type="number" id="name" v-model="formData.CriticalTime" placeholder="" />
+                <CFormInput type="number" id="name" v-model="formData.CriticalTime " placeholder="" />
             </div>
             <div>
                 <CFormCheck id="flexCheckDefault" v-model=formData.SecondaryFlag label="Secondary responders can take the primary slot for shifts of this type"/>

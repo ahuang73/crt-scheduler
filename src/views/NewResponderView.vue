@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { CForm, CFormLabel, CFormInput, CButton, CDropdown, CDropdownToggle, CDropdownMenu, CDropdownItem  } from '@coreui/vue';
+import { CForm, CFormLabel, CFormInput, CButton, CDropdown, CDropdownToggle, CDropdownMenu, CDropdownItem } from '@coreui/vue';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
+import axios from 'axios';
+import { ref } from 'vue';
 </script>
 
 <template>
@@ -9,60 +11,121 @@ import '@vuepic/vue-datepicker/dist/main.css';
         <h1>New Responder</h1>
     </div>
     <div class="well">
-        <CForm>
+        <CForm @submit="submitForm">
             <div class="outer">
-                <CFormLabel for="fname">First Name</CFormLabel>
-                <CFormInput type="text" id="fname" placeholder="" />
-            </div>
-            <div>
-                <CFormLabel for="lname">Last Name</CFormLabel>
-                <CFormInput type="text" id="lname" placeholder="" />
+                <CFormLabel for="fname">Name</CFormLabel>
+                <CFormInput type="text" id="name" v-model="formData.name" placeholder="" />
             </div>
             <div class="outer">
                 <CFormLabel for="username">Username</CFormLabel>
-                <CFormInput type="text" id="username" placeholder="" />
+                <CFormInput type="text" v-model="formData.username" id="username" placeholder="" />
             </div>
-           
-            <div class = "outer">
+
+            <div class="outer">
                 Position
                 <div>
-                <CDropdown>               
-                <CDropdownToggle color="primary" variant="outline">Position</CDropdownToggle>
-                <CDropdownMenu>
-                    <CDropdownItem href="">Rookie</CDropdownItem>
-                    <CDropdownItem href="#">Secondary</CDropdownItem>
-                    <CDropdownItem href="#">Primary</CDropdownItem>
-                </CDropdownMenu>
-                </CDropdown>
+                    <CDropdown>
+                        <CDropdownToggle color="primary" variant="outline">{{ formData.position }}</CDropdownToggle>
+                        <CDropdownMenu v-model="formData.position">
+                            <CDropdownItem @click="formData.position = 'Rookie'">Rookie</CDropdownItem>
+                            <CDropdownItem @click="formData.position = 'Secondary'">Secondary</CDropdownItem>
+                            <CDropdownItem @click="formData.position = 'Primary'">Primary</CDropdownItem>
+                        </CDropdownMenu>
+                    </CDropdown>
                 </div>
             </div>
-            <div class = "outer">
+            <div class="outer">
                 <CFormLabel for="date"> SFA Expiry </CFormLabel>
-                <VueDatePicker v-model ="date"></VueDatePicker>
+                <VueDatePicker v-model="sfaexpiry" :format="format"></VueDatePicker>
             </div>
 
-            <div class = "outer">
+            <div class="outer">
                 <CFormLabel for="date"> BLS Expiry </CFormLabel>
-                <VueDatePicker v-model ="date"></VueDatePicker>
+                <VueDatePicker v-model="blsexpiry" :format="format"></VueDatePicker>
             </div>
 
-            <div class = "outer">
+            <div class="outer">
                 <CFormLabel for="date"> FR Expiry </CFormLabel>
-                <VueDatePicker v-model ="date"></VueDatePicker>
+                <VueDatePicker v-model="frexpiry" :format="format"></VueDatePicker>
             </div>
 
-            <CButton color="success" value="new_shift">Sign Up</CButton>
+            <CButton color="success" value="new_shift" type="submit">Sign Up</CButton>
         </CForm>
     </div>
 </template>
 <script lang="ts">
+const sfaexpiry = ref(new Date())
+const blsexpiry = ref(new Date())
+const frexpiry = ref(new Date())
+const format = (date: { getMonth: () => number; getFullYear: () => any; }) => {
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+
+    return `${month}/${year}`;
+}
+
 export default {
-  components: { VueDatePicker },
-  data() {
-    return {
-      date: null,
-    };
-  }
+    components: { VueDatePicker },
+
+    data() {
+        return {
+            formData: {
+                username: "",
+                name: "",
+                supervisor: 0,
+                training: 0,
+                debrief: 0,
+                anp: 0,
+                regular: 0,
+                position: "Rookie",
+                SFAexpiry: sfaexpiry,
+                BLSexpiry: blsexpiry,
+                FRexpiry: frexpiry,
+            }
+        };
+    },
+    methods: {
+        async submitForm() {
+            event?.preventDefault()
+            try {
+
+
+                // Send formData to your backend API to save in MongoDB
+                const response = await axios.post('http://localhost:3000/api/responderdata', this.formData);
+                console.log('Responder Created:', response.data, this.formData);
+
+                this.$router.push('/responders')
+                setTimeout(() => {
+                    window.location.reload();
+                }, 10);
+
+
+                //this.resetForm();
+            } catch (error) {
+                console.error('Error creating shift:', error);
+            }
+        },
+
+
+        resetForm() {
+            // Reset form fields to their initial state
+            this.formData = {
+                username: "",
+                name: "",
+                supervisor: 0,
+                training: 0,
+                debrief: 0,
+                anp: 0,
+                regular: 0,
+                position: "Rookie",
+                SFAexpiry: new Date(),
+                BLSexpiry: new Date(),
+                FRexpiry: new Date(),
+            };
+
+        }
+    }
+
 }
 </script>
 
@@ -73,6 +136,7 @@ export default {
     margin: 80px 0 30px;
     border-bottom: 1px solid #eee;
 }
+
 .well {
     min-height: 20px;
     padding: 19px;
