@@ -135,6 +135,28 @@ app.post('/api/responderdata', async (req, res) => {
   }
 });
 
+app.get('/api/responderdata/:position', async (req, res) => {
+  try {
+    await client.connect();
+
+    const db = client.db(dbName);
+    const collection = db.collection("responders");
+
+    const position = req.params.position;
+    
+    // Fetch responders with the specified position
+    const responders = await collection.find({ position: position }).toArray();
+
+    res.json(responders);
+    console.log(`Responders with position ${position} retrieved`);
+  } catch (error) {
+    console.error('Error fetching responders:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  } finally {
+    client.close();
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });

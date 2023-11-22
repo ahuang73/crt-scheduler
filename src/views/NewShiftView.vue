@@ -3,7 +3,7 @@ import { CForm, CFormLabel, CFormTextarea, CFormInput, CDropdown, CDropdownToggl
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import axios from 'axios';
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 
 </script>
 
@@ -28,11 +28,8 @@ import { ref } from 'vue';
                     <CDropdown v-model="formData.Type">
                         <CDropdownToggle color="primary" variant="outline" id="Type">{{ formData.Type }}</CDropdownToggle>
                         <CDropdownMenu>
-                            <CDropdownItem @click="formData.Type = 'Regular'">Regular</CDropdownItem>
-                            <CDropdownItem @click="formData.Type = 'Supervisor'">Supervisor</CDropdownItem>
-                            <CDropdownItem @click="formData.Type = 'Training'">Training</CDropdownItem>
-                            <CDropdownItem @click="formData.Type = 'Debrief'">Debrief</CDropdownItem>
-                            <CDropdownItem @click="formData.Type = 'AnP'">AnP</CDropdownItem>
+                            <CDropdownItem v-for="typeOption in TypeOptions" :key="typeOption._id"
+                                @click="formData.Type = typeOption">{{ typeOption }}</CDropdownItem>
                         </CDropdownMenu>
                     </CDropdown>
                 </div>
@@ -53,7 +50,8 @@ import { ref } from 'vue';
                     <CDropdown v-model="formData.Primary">
                         <CDropdownToggle color="primary" variant="outline">{{ formData.Primary }}</CDropdownToggle>
                         <CDropdownMenu>
-                            <CDropdownItem @click="formData.Primary = 'John'">John</CDropdownItem>
+                            <CDropdownItem v-for="primaryOption in PrimaryOptions" :key="primaryOption._id"
+                                @click="formData.Primary = primaryOption">{{ primaryOption }}</CDropdownItem>
                         </CDropdownMenu>
                     </CDropdown>
                 </div>
@@ -64,7 +62,9 @@ import { ref } from 'vue';
                     <CDropdown v-model="formData.Secondary">
                         <CDropdownToggle color="primary" variant="outline">{{ formData.Secondary }}</CDropdownToggle>
                         <CDropdownMenu>
-                            <CDropdownItem @click="formData.Secondary = 'Jack'">Jack</CDropdownItem>
+                            <CDropdownItem v-for="secondaryOption in SecondaryOptions" :key="secondaryOption._id"
+                                @click="formData.Secondary = secondaryOption">{{ secondaryOption }}
+                            </CDropdownItem>
                         </CDropdownMenu>
                     </CDropdown>
                 </div>
@@ -76,7 +76,8 @@ import { ref } from 'vue';
                     <CDropdown v-model="formData.Rookie">
                         <CDropdownToggle color="primary" variant="outline">{{ formData.Rookie }}</CDropdownToggle>
                         <CDropdownMenu>
-                            <CDropdownItem @click="formData.Rookie = 'James'">James</CDropdownItem>
+                            <CDropdownItem v-for="rookieOption in RookieOptions" :key="rookieOption._id"
+                                @click="formData.Rookie = rookieOption">{{ rookieOption }}</CDropdownItem>
                         </CDropdownMenu>
                     </CDropdown>
                 </div>
@@ -95,6 +96,26 @@ import { ref } from 'vue';
 
 
 <script lang="ts">
+const TypeOptions = ref([]);
+const PrimaryOptions = ref([]);
+const SecondaryOptions = ref([]);
+const RookieOptions = ref([]);
+
+try {
+    // Fetch shift_types data and set it in the formData.TypeOptions array
+    const shiftTypesResponse = await axios.get('http://localhost:3000/api/shifttypedata');
+    TypeOptions.value = shiftTypesResponse.data.map((shiftType: any) => shiftType.Name);
+
+    // Fetch Responders data for Primary, Secondary, and Rookie dropdowns
+    const primaries = await axios.get('http://localhost:3000/api/responderdata/Primary');
+    PrimaryOptions.value = primaries.data.map((primary: any) => primary.name);
+    const secondaries = await axios.get('http://localhost:3000/api/responderdata/Secondary');
+    SecondaryOptions.value = secondaries.data.map((secondary: any) => secondary.name);
+    const rookies = await axios.get('http://localhost:3000/api/responderdata/Rookie');
+    RookieOptions.value = rookies.data.map((rookie: any) => rookie.name);
+} catch (error) {
+    console.error('Error fetching data:', error);
+}
 
 export default {
     components: { VueDatePicker },
@@ -129,7 +150,7 @@ export default {
                 let tempEnd = this.tempData.End
                 //Still need to handle start/end dates not being equal here
 
-                this.formData.Date = tempStart.getDate() + '-' + (tempStart.getMonth()+1) + '-' + tempStart.getFullYear()
+                this.formData.Date = tempStart.getDate() + '-' + (tempStart.getMonth() + 1) + '-' + tempStart.getFullYear()
                 this.formData.Start = tempStart.getHours() + ':' + tempStart.getMinutes()
                 this.formData.End = tempEnd.getHours() + ':' + tempEnd.getMinutes()
 
@@ -197,5 +218,4 @@ export default {
 
 .outer {
     margin-top: 10px;
-}
-</style>
+}</style>
