@@ -5,6 +5,10 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
+      path:'/',
+      redirect: '/shifts'
+    },
+    {
       path: '/shifts',
       name: 'shifts',
       component: () => import('../views/ShiftView.vue')

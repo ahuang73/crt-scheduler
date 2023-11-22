@@ -1,4 +1,4 @@
-import { MongoClient, ServerApiVersion } from 'mongodb'
+import { MongoClient, ServerApiVersion, ObjectId } from 'mongodb'
 import express from 'express';
 import cors from 'cors';
 const app = express()
@@ -139,61 +139,29 @@ app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
-
-
-async function fetch_shift_data() {
+app.delete('/api/shifttypedata/delete/:id', async (req, res) => {
   try {
     await client.connect();
-    const db = client.db("CRT-Data")
-    const collection = db.collection('shifts');
-    const query = {}; // You can specify a query to filter data
 
-    const cursor = collection.find(query);
+    const db = client.db(dbName);
+    const collection = db.collection('shift_types');
 
-    // Loop through the cursor and output data to the console
-    await cursor.forEach(document => {
-      console.log(document);
-    });
-  } catch (err) {
-    console.error('Error:', err);
+    const shiftTypeId = req.params.id;
+    console.log(shiftTypeId)
+    const result = await collection.deleteOne({ _id: new ObjectId(shiftTypeId) });
+    
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: 'Shift type not found' });
+    }
+
+  
+    res.json({ success: true });
+    console.log("Shift Type DELETE");
+  } catch (error) {
+    console.error('Error deleting shift type:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   } finally {
-    // Close the MongoDB connection
     client.close();
   }
+});
 
-
-}
-
-async function store_shift() {
-  try {
-    // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
-    // Send a ping to confirm a successful connection
-    const db = client.db("CRT-Data")
-    const collection = db.collection("shifts");
-    const sampleShiftData = {
-      Date: "01-01-01",
-      Name: "Test A",
-      Location: "AB",
-      Start_Time: "10:00",
-      End_Time: "15:00",
-      Primary: "John",
-      Secondary: "Jack",
-      Rookie: "James",
-      Type: "Regular"
-    }
-    await collection.insertOne(sampleShiftData, function (err, result) {
-      if (err) {
-        console.error('Error inserting data:', err);
-      } else {
-        console.log('Inserted a document with the ID:', result.insertedId);
-      }
-    });
-
-
-  } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
-  }
-
-}

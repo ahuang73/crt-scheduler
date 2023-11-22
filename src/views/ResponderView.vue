@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { CButton, CForm, CFormInput, CTable } from '@coreui/vue';
 import axios from 'axios';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 </script>
 
 <template>
@@ -17,115 +17,169 @@ import { ref } from 'vue';
         </CButton>
     </CForm>
 
-    <CTable :columns="columns" :items="responders" />
+    <CTable :columns="columns" :items="responders">
+        <template v-slot:cell(suspended)="data">
+            <CButton @click="handleSuspendedButtonClick(data.item)">
+                {{ data.item.suspended }}
+            </CButton>
+        </template>
+
+        <!-- Render custom buttons for the "Admin" column -->
+        <template v-slot:cell(admin)="data">
+            <CButton @click="handleAdminButtonClick(data.item)">
+                {{ data.item.admin }}
+            </CButton>
+        </template>
+
+        <!-- Render custom buttons for the "Delete" column -->
+        <template v-slot:cell(delete)="data">
+            <CButton @click="handleDeleteButtonClick(data.item)">
+                {{ data.item.delete }}
+            </CButton>
+        </template>
+    </CTable>
 </template>
 <script lang="ts">
+
+class Responder {
+    id: string;
+    username: string;
+    name: string;
+    supervisor: string;
+    training: string;
+    debrief: string;
+    anp: string;
+    regular: string;
+    position: string;
+    SFAexpiry: Date;
+    BLSexpiry: Date;
+    FRexpiry: Date;
+    certExpiration: string;
+
+    constructor(data: any) {
+        this.id = data._id.$oid;
+        this.username = data.username;
+        this.name = data.name;
+        this.supervisor = String(data.supervisor);
+        this.training = data.training;
+        this.debrief = data.debrief;
+        this.anp = data.anp.$numberInt;
+        this.regular = data.regular.$numberInt;
+        this.position = data.position;
+        this.SFAexpiry = new Date(data.SFAexpiry);
+        this.BLSexpiry = new Date(data.BLSexpiry);
+        this.FRexpiry = new Date(data.FRexpiry);
+        this.certExpiration = this.getCertExpiration()
+    }
+    getCertExpiration(): string {
+        const dates: Date[] = [this.SFAexpiry, this.BLSexpiry, this.FRexpiry];
+        const earliestDate = dates.reduce((a, b) => a < b ? a : b);
+        const today = new Date();
+        const timeDiff = Math.abs(earliestDate.getTime() - today.getTime());
+        const diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+        return `${diffDays} days`;
+    }
+}
 const responders = ref([]);
+const shiftTypes = ref([]);
+const columns = ref([]);
+const handleSuspendedButtonClick = (item) => {
+  // Handle button click for the "Suspended" column
+  console.log('Suspended button clicked for item:', item);
+};
+
+const handleAdminButtonClick = (item) => {
+  // Handle button click for the "Admin" column
+  console.log('Admin button clicked for item:', item);
+};
+
+const handleDeleteButtonClick = (item) => {
+  // Handle button click for the "Delete" column
+  console.log('Delete button clicked for item:', item);
+};
 try {
+
     const response = await axios.get('http://localhost:3000/api/responderdata');
-    responders.value = response.data;
+    let responderData = response.data.map((data: any) => new Responder(data)); // create a new Responder instance for each data
+    const response2 = await axios.get('http://localhost:3000/api/shifttypedata');
+    shiftTypes.value = response2.data;
+
+
+    console.log(responders)
+    const shiftTypeColumns = shiftTypes.value.map(shiftType => ({
+        key: shiftType.Name.toLowerCase(),
+        label: shiftType.Name,
+        _props: { scope: "col" },
+        default:0,
+    }));
+
+    let initialColumns = [
+        {
+            key: "name",
+            label: "Name",
+            _props: { scope: "col" },
+        },
+    ]
+    let finalColumns = [
+
+        {
+            key: "certExpiration",
+            label: "Cert Expiration",
+            _props: { scope: "col" },
+        },
+        {
+            key: "position",
+            label: "Rank",
+            _props: { scope: "col" },
+        },
+        {
+            key: "Suspended",
+            _props: { scope: "col" },
+        },
+        {
+            key: "Admin",
+            _props: { scope: "col" },
+        },
+        {
+            key: "Delete",
+            _props: { scope: "col" },
+        },
+
+    ]
+    columns.value = [
+        ...initialColumns,
+        ...shiftTypeColumns,
+        ...finalColumns
+
+    ]
+
+    responders.value = responderData.map((responder: any) => {
+        let obj: any = {};
+        for (let key in responder) {
+            const isKeyInColumns = columns.value.some((column: any) => column.key === key);
+            console.log(`Is ${key} in columns?`, isKeyInColumns, `${responder[key]}`); // print out the value
+
+            if (isKeyInColumns) {
+                obj[key] = responder[key];
+            }
+        }
+        if (!obj.hasOwnProperty('certExpiration')) {
+            obj.certExpiration = responder.getCertExpiration();
+        }
+        // add other additional keys and values as needed...
+        return obj;
+    });
+    
+    console.log(responders.value);
 
 } catch (error) {
-    console.error('Error fetching shift types:', error);
+    console.error('Error fetching Responders:', error);
 }
 
 export default {
     data: () => {
         return {
             scheduler: true,
-            columns: [
-                {
-                    key: "name",
-                    label:"Name",
-                    _props: { scope: "col" },
-                },
-                {
-                    key: "supervisor",
-                    label:"Supervisor",
-                    _props: { scope: "col" },
-                },
-                {
-                    key: "training",
-                    label:"Training",
-                    _props: { scope: "col" },
-                },
-                {
-                    key: "debrief",
-                    label:"Debrief",
-                    _props: { scope: "col" },
-                },
-                {
-                    key: "anp",
-                    label: "AnP",
-                    _props: { scope: "col" },
-                },
-                {
-                    key: "Regular",
-                    _props: { scope: "col" },
-                },
-                {
-                    key: "cert_exp",
-                    label: "Cert Expiration",
-                    _props: { scope: "col" },
-                },
-                {
-                    key: "Rank",
-                    _props: { scope: "col" },
-                },
-                {
-                    key: "Suspended",
-                    _props: { scope: "col" },
-                },
-                {
-                    key: "Admin",
-                    _props: { scope: "col" },
-                },
-                {
-                    key: "Delete",
-                    _props: { scope: "col" },
-                },
-            ],
-            items: [
-                {
-                    Name: "Test 1",
-                    Supervisor: "0.0",
-                    Training: "0.0",
-                    Debrief: "0.0",
-                    AnP: "0.0",
-                    Regular: "10.0",
-                    cert_exp: "1000 days",
-                    Rank: "Primary",
-                    Suspended: "Suspended",
-                    Admin: "Promote",
-                    Delete: "Delete",
-                },
-                {
-                    Name: "Test 2",
-                    Supervisor: "0.0",
-                    Training: "0.0",
-                    Debrief: "0.0",
-                    AnP: "0.0",
-                    Regular: "0.0",
-                    cert_exp: "1000 days",
-                    Rank: "Primary",
-                    Suspended: "Suspended",
-                    Admin: "Promote",
-                    Delete: "Delete",
-                },
-                {
-                    Name: "Test 3",
-                    Supervisor: "0.0",
-                    Training: "0.0",
-                    Debrief: "0.0",
-                    AnP: "0.0",
-                    Regular: "0.0",
-                    cert_exp: "1000 days",
-                    Rank: "Primary",
-                    Suspended: "Suspended",
-                    Admin: "Promote",
-                    Delete: "Delete",
-                },
-            ]
         };
     },
     components: { CButton }

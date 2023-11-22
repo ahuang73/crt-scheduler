@@ -2,7 +2,7 @@
 import { CButton, CTable } from '@coreui/vue';
 import axios from 'axios';
 import { ref } from 'vue';
-
+import { ShiftType } from '../Classes';
 </script>
 
 <template>
@@ -10,20 +10,83 @@ import { ref } from 'vue';
         <h1>Shift Types</h1>
     </div>
     <div>
-        <CButton @click="$router.push('shift_types/new')" color="success" value = "show_all">New Shift Type</CButton>
-        <CTable :columns="columns" :items="shift_types" />
+        <CButton @click="$router.push('shift_types/new')" color="success" value="show_all">New Shift Type</CButton>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Primary Requirement</th>
+                    <th>Secondary Requirement</th>
+                    <th>Critical Time</th>
+                    <th>Hours Taken</th>
+                    <th>Naughty List</th>
+                    <th>Default?</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(shiftType, index) in shift_types" :key="index">
+                    <td>{{ shiftType.Name }}</td>
+                    <td>{{ shiftType.PrimaryReq }}</td>
+                    <td>{{ shiftType.SecondaryReq }}</td>
+                    <td>{{ shiftType.CriticalTime }}</td>
+                    <td>{{ shiftType.HoursTaken }}</td>
+                   
+                    <td>
+                        
+                        <button @click="handleNaughtyListEdit(index)">Edit Naughty List</button>
+                    </td>
+                    <td>
+                        
+                        <button @click="handleDefaultEdit(index)">Make Default</button>
+                    </td>
+                    <td>
+                       
+                        <button @click="handleDelete(index)">Delete</button>
+                    </td>
+                    
+                </tr>
+            </tbody>
+        </table>
     </div>
 </template>
 <script lang="ts">
-    const shift_types = ref([]);
+const shift_types = ref<ShiftType[]>([]);
+try {
+    const response = await axios.get('http://localhost:3000/api/shifttypedata');
+    shift_types.value = response.data;
+    console.log(shift_types.value)
+} catch (error) {
+    console.error('Error fetching shift types:', error);
+}
+
+const handleNaughtyListEdit = (index: any) => {
+    // Handle edit of Naughty List
+    console.log('Edit Naughty List for item:', shift_types.value[index]);
+};
+
+const handleDefaultEdit = (index: any) => {
+    // Handle edit of Default
+    console.log('Make Default for item:', shift_types.value[index]);
+};
+
+const handleDelete = async (index: any) => {
     try {
-        const response = await axios.get('http://localhost:3000/api/shifttypedata');
-        shift_types.value = response.data;
-        console.log(shift_types.value)
+        const shiftTypeToDelete = shift_types.value[index];
+        console.log('Deleting item:', shiftTypeToDelete)
+        // Assuming there's an endpoint for deleting, replace 'your_delete_endpoint' with the actual endpoint
+        await axios.delete(`http://localhost:3000/api/shifttypedata/delete/${shiftTypeToDelete._id}`);
+        
+        // Remove the deleted item from the local array
+        shift_types.value.splice(index, 1);
+        
+        console.log('Deleted item:', shiftTypeToDelete);
     } catch (error) {
-        console.error('Error fetching shift types:', error);
+        console.error('Error deleting shift type:', error);
     }
-  export default {
+};
+
+export default {
     data: () => {
         return {
             scheduler: true,
@@ -34,7 +97,7 @@ import { ref } from 'vue';
                 },
                 {
                     key: "PrimaryReq",
-                    label:"Primary Requirement",
+                    label: "Primary Requirement",
                     _props: { scope: "col" },
                 },
                 {
@@ -49,7 +112,7 @@ import { ref } from 'vue';
                 },
                 {
                     key: "HoursTaken",
-                    label:"Hours Taken",
+                    label: "Hours Taken",
                     _props: { scope: "col" },
                 },
                 {
@@ -121,16 +184,58 @@ import { ref } from 'vue';
             ]
         };
     },
-    
+
     components: { CButton }
 }
 </script>
 <style scoped>
-    .page-header {
-        padding-bottom: 9px;
-        margin: 80px 0 30px;
-        border-bottom: 1px solid #eee;
-    }
+.page-header {
+    padding-bottom: 9px;
+    margin: 80px 0 30px;
+    border-bottom: 1px solid #eee;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    border: none;
+    /* Remove the table outline */
+}
+
+th {
+    border-bottom: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+td {
+    border: none;
+    border-top: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+button {
+    padding: 6px 12px;
+    margin: 0;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    cursor: pointer;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+button:hover {
+    background-color: #2ca02c;
+    border-color: #2ca02c;
+    color: #fff;
+}
 </style>
 
 
