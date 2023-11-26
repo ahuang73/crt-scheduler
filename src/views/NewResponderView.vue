@@ -14,22 +14,22 @@ import { ref } from 'vue';
         <CForm @submit="submitForm">
             <div class="outer">
                 <CFormLabel for="fname">Name</CFormLabel>
-                <CFormInput type="text" id="name" v-model="formData.name" placeholder="" />
+                <CFormInput type="text" id="name" v-model="formData.Name" placeholder="" />
             </div>
             <div class="outer">
                 <CFormLabel for="username">Username</CFormLabel>
-                <CFormInput type="text" v-model="formData.username" id="username" placeholder="" />
+                <CFormInput type="text" v-model="formData.Username" id="username" placeholder="" />
             </div>
 
             <div class="outer">
                 Position
                 <div>
                     <CDropdown>
-                        <CDropdownToggle color="primary" variant="outline">{{ formData.position }}</CDropdownToggle>
-                        <CDropdownMenu v-model="formData.position">
-                            <CDropdownItem @click="formData.position = 'Rookie'">Rookie</CDropdownItem>
-                            <CDropdownItem @click="formData.position = 'Secondary'">Secondary</CDropdownItem>
-                            <CDropdownItem @click="formData.position = 'Primary'">Primary</CDropdownItem>
+                        <CDropdownToggle color="primary" variant="outline">{{ formData.Position }}</CDropdownToggle>
+                        <CDropdownMenu v-model="formData.Position">
+                            <CDropdownItem @click="formData.Position = 'Rookie'">Rookie</CDropdownItem>
+                            <CDropdownItem @click="formData.Position = 'Secondary'">Secondary</CDropdownItem>
+                            <CDropdownItem @click="formData.Position = 'Primary'">Primary</CDropdownItem>
                         </CDropdownMenu>
                     </CDropdown>
                 </div>
@@ -70,14 +70,14 @@ export default {
     data() {
         return {
             formData: {
-                username: "",
-                name: "",
-                supervisor: 0,
-                training: 0,
-                debrief: 0,
-                anp: 0,
-                regular: 0,
-                position: "Rookie",
+                Username: "",
+                Name: "",
+                Supervisor: 0,
+                Training: 0,
+                Debrief: 0,
+                Anp: 0,
+                Regular: 0,
+                Position: "Rookie",
                 SFAexpiry: sfaexpiry,
                 BLSexpiry: blsexpiry,
                 FRexpiry: frexpiry,
@@ -110,14 +110,14 @@ export default {
         resetForm() {
             // Reset form fields to their initial state
             this.formData = {
-                username: "",
-                name: "",
-                supervisor: 0,
-                training: 0,
-                debrief: 0,
-                anp: 0,
-                regular: 0,
-                position: "Rookie",
+                Username: "",
+                Name: "",
+                Supervisor: 0,
+                Training: 0,
+                Debrief: 0,
+                Anp: 0,
+                Regular: 0,
+                Position: "Rookie",
                 SFAexpiry: new Date(),
                 BLSexpiry: new Date(),
                 FRexpiry: new Date(),

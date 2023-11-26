@@ -1,6 +1,14 @@
 import { MongoClient, ServerApiVersion, ObjectId } from 'mongodb'
+import passport from 'passport'
+import { OIDCStrategy } from 'passport-azure-ad';
+import dotenv from 'dotenv';
+import session from 'express-session';
+import cookieParser from 'cookie-parser';
 import express from 'express';
 import cors from 'cors';
+
+
+dotenv.config();
 const app = express()
 const port = process.env.PORT || 3000;
 const uri = "mongodb+srv://crt_user:qWYXJj1KOtWkG61J@crt-data.olatvi5.mongodb.net/?retryWrites=true&w=majority";
@@ -16,6 +24,154 @@ const dbName = "CRT-Data"
 
 app.use(express.json());
 app.use(cors());
+
+app.use(cookieParser());
+
+app.use(session({
+  secret: process.env.CLIENT_SECRET||"PROVIDE_SECRET",
+  resave: false,
+  cookie: {maxAge: 7*24*60*60*1000}, // Optionally add secure: true if https,
+  secure:true,
+  saveUninitialized: true
+}))
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(new OIDCStrategy({
+  identityMetadata: `${process.env.DISCOVERY_URL}/adfs/.well-known/openid-configuration`,
+  clientID: process.env.ADFS_CLIENT_ID,
+  responseType: 'id_token',
+  responseMode: 'form_post',
+  redirectUrl: `${process.env.HOSTNAME}/oauth2/callback`,
+  passReqToCallback: true,
+  //loggingLevel: 'info',
+  //scope: ['winaccountname'],
+  useCookieInsteadOfSession: true,
+  cookieEncryptionKeys: [{ key: '12345678901234567890123456789012', 'iv': '123456789012' }],  // IDK what this does lol
+
+},
+  function (req, iss, sub, profile, accessToken, refreshToken, done) {
+    // You'll probably want to do some work here
+    // You can pull out whatever you want from the profile here
+    let username = profile._json.winaccountname
+    if (!username) {
+      return done(new Error("No username found"), null);
+    }
+    return done(null, { username: username })
+  }
+));
+
+passport.serializeUser(function(user, done) {
+  // You can do some stuff here
+  done(null, user);
+});
+
+passport.deserializeUser(function(user, done) {
+  // Also here
+  done(null, user);
+});
+
+function regenerateSessionAfterAuthentication(req, res, next) {
+  let passportInstance = req.session.passport;
+  return req.session.regenerate(function (err){
+      if (err) {
+          return next(err);
+      }
+      req.session.passport = passportInstance;
+      return req.session.save(next);
+  })
+}
+app.get('/oauth2/login',
+    passport.authenticate('azuread-openidconnect', {
+        prompt: 'login'
+    })
+)
+app.post('/oauth2/callback', 
+    passport.authenticate('azuread-openidconnect', { failureRedirect: process.env.SERVER_LOGIN_REDIRECT, prompt: 'login'}),
+    regenerateSessionAfterAuthentication,
+    function (req, res) {
+        // Successful authentication, redirect home.
+        res.redirect(process.env.SERVER_LOGIN_REDIRECT);
+    }
+)
+
+app.post('/oauth/logout/', (req, res, next)=>{
+  // Logout is broken with azure-ad, so we just do it manually!
+  if (req.session.passport) {
+      delete req.session.passport.user;
+  }
+  let prevSession = req.session;
+    
+  req.session.save(function(err) {
+      if (err) {
+         return next(err)
+      }
+    
+      // regenerate the session, which is good practice to help
+      // guard against forms of session fixation
+      req.session.regenerate(function(err) {
+          if (err) {
+              return next(err);
+          }
+          // You may want to redirect somewhere here!!
+          return res.status(200).json({'status': 'ok'})
+      });
+  });
+})
+function restrict(check){
+  // You can pass a check function here to add additional stuff!
+  return function (req, res, next) {
+      let cfn = check || function(){ return true }
+      if (req.user && cfn(req, res)) {
+          next();
+      } else {
+          // Do whatever you want here -- I'm returing json
+          res.status(403).json({error: 'not logged in, access denied!'})
+      }
+  }
+}
+
+app.get('/oauth2/login',
+  passport.authenticate('azuread-openidconnect', {
+      prompt: 'login'
+  })
+)
+
+app.post('/oauth2/callback', 
+  passport.authenticate('azuread-openidconnect', { failureRedirect: process.env.SERVER_LOGIN_REDIRECT, prompt: 'login'}),
+  regenerateSessionAfterAuthentication,
+  function (req, res) {
+      // Successful authentication, redirect home.
+      res.redirect(process.env.SERVER_LOGIN_REDIRECT);
+  }
+)
+
+app.post('/oauth/logout/', (req, res, next)=>{
+  // Logout is broken with azure-ad, so we just do it manually!
+  if (req.session.passport) {
+      delete req.session.passport.user;
+  }
+  let prevSession = req.session;
+    
+  req.session.save(function(err) {
+      if (err) {
+         return next(err)
+      }
+    
+      // regenerate the session, which is good practice to help
+      // guard against forms of session fixation
+      req.session.regenerate(function(err) {
+          if (err) {
+              return next(err);
+          }
+          // You may want to redirect somewhere here!!
+          return res.status(200).json({'status': 'ok'})
+      });
+  });
+})
+
+
 app.get('/api/shiftsdata', async (req, res) => {
   try {
     await client.connect();
@@ -36,7 +192,7 @@ app.post('/api/shiftsdata', async (req, res) => {
     await client.connect();
     const db = client.db(dbName);
     const collection = db.collection('shifts');
-    
+
     // Extract shift data from the request body
     const shiftData = req.body;
 
@@ -76,7 +232,7 @@ app.post('/api/shifttypedata', async (req, res) => {
     await client.connect();
     const db = client.db(dbName);
     const collection = db.collection('shift_types');
-    
+
     // Extract shift data from the request body
     const shiftTypeData = req.body;
 
@@ -116,7 +272,7 @@ app.post('/api/responderdata', async (req, res) => {
     await client.connect();
     const db = client.db(dbName);
     const collection = db.collection('responders');
-    
+
     // Extract shift data from the request body
     const shiftTypeData = req.body;
 
@@ -143,7 +299,7 @@ app.get('/api/responderdata/:position', async (req, res) => {
     const collection = db.collection("responders");
 
     const position = req.params.position;
-    
+
     // Fetch responders with the specified position
     const responders = await collection.find({ position: position }).toArray();
 
@@ -171,12 +327,12 @@ app.delete('/api/shifttypedata/delete/:id', async (req, res) => {
     const shiftTypeId = req.params.id;
     console.log(shiftTypeId)
     const result = await collection.deleteOne({ _id: new ObjectId(shiftTypeId) });
-    
+
     if (result.deletedCount === 0) {
       return res.status(404).json({ error: 'Shift type not found' });
     }
 
-  
+
     res.json({ success: true });
     console.log("Shift Type DELETE");
   } catch (error) {

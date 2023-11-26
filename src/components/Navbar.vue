@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import  {CNavbar, CContainer, CNavbarBrand, CNavbarToggler, CCollapse,CNavbarNav,CNavItem,CNavLink,CDropdown,CDropdownToggle,CDropdownMenu,CDropdownItem,CDropdownDivider,CForm,CFormInput,CButton} from '@coreui/vue';
+import  {CNavbar, CContainer, CNavbarBrand, CNavbarToggler, CCollapse,CNavbarNav,CNavItem,CNavLink,CDropdown,CDropdownToggle,CDropdownMenu,CDropdownItem,CDropdownDivider,CForm,CFormInput,CButton, CNav} from '@coreui/vue';
 
 </script>
 <template>
@@ -24,8 +24,15 @@ import  {CNavbar, CContainer, CNavbarBrand, CNavbarToggler, CCollapse,CNavbarNav
         </CNavItem>
         <CNavItem v-if="scheduler">
           <CNavLink href="/eot">EoT</CNavLink>
+        </CNavItem>        
+      </CNavbarNav>
+      <CNavbarNav class="ms-auto">
+        <CNavItem v-if="!loggedin">
+          <CNavLink href="/login">Login</CNavLink>
         </CNavItem>
-        
+        <CNavItem v-if="loggedin">
+          <CNavLink href="/logout">Logout</CNavLink>
+        </CNavItem>
       </CNavbarNav>
      
     </CCollapse>
@@ -39,6 +46,7 @@ export default {
     data() {
         return {
           scheduler: true,
+          loggedin: false,
         };
     }
 };

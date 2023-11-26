@@ -19,7 +19,7 @@ export class ShiftType {
             NaughtyList: string,
             IsDefault: boolean
         ) {
-            this._id = id;
+            this._id = _id;
             this.Name = Name;
             this.PrimaryReq = PrimaryReq;
             this.SecondaryReq = SecondaryReq;
@@ -32,34 +32,34 @@ export class ShiftType {
 
   
 export class Responder {
-    id: string;
-    username: string;
-    name: string;
-    supervisor: string;
-    training: string;
-    debrief: string;
-    anp: string;
-    regular: string;
-    position: string;
+    _id: string;
+    Username: string;
+    Name: string;
+    Supervisor: number;
+    Training: number;
+    Debrief: number;
+    Anp: number;
+    Regular: number;
+    Position: string;
     SFAexpiry: Date;
     BLSexpiry: Date;
     FRexpiry: Date;
-    certExpiration: string;
+    CertExpiration: string;
 
     constructor(data: any) {
-        this.id = data._id.$oid;
-        this.username = data.username;
-        this.name = data.name;
-        this.supervisor = String(data.supervisor);
-        this.training = data.training;
-        this.debrief = data.debrief;
-        this.anp = data.anp.$numberInt;
-        this.regular = data.regular.$numberInt;
-        this.position = data.position;
+        this._id = data._id;
+        this.Username = data.Username;
+        this.Name = data.Name;
+        this.Supervisor = data.Supervisor
+        this.Training = data.Training;
+        this.Debrief = data.Debrief;
+        this.Anp = data.Anp;
+        this.Regular = data.Regular;
+        this.Position = data.Position;
         this.SFAexpiry = new Date(data.SFAexpiry);
         this.BLSexpiry = new Date(data.BLSexpiry);
         this.FRexpiry = new Date(data.FRexpiry);
-        this.certExpiration = this.getCertExpiration()
+        this.CertExpiration = this.getCertExpiration()
     }
     getCertExpiration(): string {
         const dates: Date[] = [this.SFAexpiry, this.BLSexpiry, this.FRexpiry];

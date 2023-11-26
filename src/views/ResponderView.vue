@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { ShiftType, Responder } from '@/Classes';
 import { CButton, CForm, CFormInput, CTable } from '@coreui/vue';
 import axios from 'axios';
 import { onMounted, ref } from 'vue';
+
 </script>
 
 <template>
@@ -17,72 +19,44 @@ import { onMounted, ref } from 'vue';
         </CButton>
     </CForm>
 
-    <CTable :columns="columns" :items="responders">
-        <template v-slot:cell(suspended)="data">
-            <CButton @click="handleSuspendedButtonClick(data.item)">
-                {{ data.item.suspended }}
-            </CButton>
-        </template>
-
-        <!-- Render custom buttons for the "Admin" column -->
-        <template v-slot:cell(admin)="data">
-            <CButton @click="handleAdminButtonClick(data.item)">
-                {{ data.item.admin }}
-            </CButton>
-        </template>
-
-        <!-- Render custom buttons for the "Delete" column -->
-        <template v-slot:cell(delete)="data">
-            <CButton @click="handleDeleteButtonClick(data.item)">
-                {{ data.item.delete }}
-            </CButton>
-        </template>
-    </CTable>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th v-for="name in shiftTypeColumns" scope="col">{{ name }}</th>
+          <th scope="col">Cert Expiration</th>
+          <th scope="col">Rank</th>
+          <th scope="col">Suspended</th>
+          <th scope="col">Admin</th>
+          <th scope="col">Delete</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="responder in responders">
+          <td>{{ responder.Name }}</td>
+          <td v-for="name in shiftTypeColumns">{{responder[name] }}</td>
+          <td>{{ responder.CertExpiration }}</td>
+          <td>{{ responder.Position }}</td>
+          <td>
+            <button @click="handleSuspendedButtonClick(responder)">Suspended</button>
+          </td>
+          <td>
+            <button @click="handleAdminButtonClick(responder)">Admin</button>
+          </td>
+          <td>
+            <button @click="handleDeleteButtonClick(responder)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
 </template>
 <script lang="ts">
 
-class Responder {
-    id: string;
-    username: string;
-    name: string;
-    supervisor: string;
-    training: string;
-    debrief: string;
-    anp: string;
-    regular: string;
-    position: string;
-    SFAexpiry: Date;
-    BLSexpiry: Date;
-    FRexpiry: Date;
-    certExpiration: string;
 
-    constructor(data: any) {
-        this.id = data._id.$oid;
-        this.username = data.username;
-        this.name = data.name;
-        this.supervisor = String(data.supervisor);
-        this.training = data.training;
-        this.debrief = data.debrief;
-        this.anp = data.anp.$numberInt;
-        this.regular = data.regular.$numberInt;
-        this.position = data.position;
-        this.SFAexpiry = new Date(data.SFAexpiry);
-        this.BLSexpiry = new Date(data.BLSexpiry);
-        this.FRexpiry = new Date(data.FRexpiry);
-        this.certExpiration = this.getCertExpiration()
-    }
-    getCertExpiration(): string {
-        const dates: Date[] = [this.SFAexpiry, this.BLSexpiry, this.FRexpiry];
-        const earliestDate = dates.reduce((a, b) => a < b ? a : b);
-        const today = new Date();
-        const timeDiff = Math.abs(earliestDate.getTime() - today.getTime());
-        const diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
-        return `${diffDays} days`;
-    }
-}
 const responders = ref([]);
 const shiftTypes = ref([]);
 const columns = ref([]);
+const shiftTypeColumns = ref([]);
 const handleSuspendedButtonClick = (item) => {
   // Handle button click for the "Suspended" column
   console.log('Suspended button clicked for item:', item);
@@ -106,67 +80,29 @@ try {
 
 
     console.log(responders)
-    const shiftTypeColumns = shiftTypes.value.map(shiftType => ({
-        key: shiftType.Name.toLowerCase(),
-        label: shiftType.Name,
-        _props: { scope: "col" },
-        default:0,
-    }));
+    shiftTypeColumns.value = response2.data.map((shiftType: ShiftType) => shiftType.Name)
 
-    let initialColumns = [
-        {
-            key: "name",
-            label: "Name",
-            _props: { scope: "col" },
-        },
-    ]
-    let finalColumns = [
 
-        {
-            key: "certExpiration",
-            label: "Cert Expiration",
-            _props: { scope: "col" },
-        },
-        {
-            key: "position",
-            label: "Rank",
-            _props: { scope: "col" },
-        },
-        {
-            key: "Suspended",
-            _props: { scope: "col" },
-        },
-        {
-            key: "Admin",
-            _props: { scope: "col" },
-        },
-        {
-            key: "Delete",
-            _props: { scope: "col" },
-        },
-
-    ]
-    columns.value = [
-        ...initialColumns,
-        ...shiftTypeColumns,
-        ...finalColumns
-
-    ]
 
     responders.value = responderData.map((responder: any) => {
         let obj: any = {};
         for (let key in responder) {
-            const isKeyInColumns = columns.value.some((column: any) => column.key === key);
-            console.log(`Is ${key} in columns?`, isKeyInColumns, `${responder[key]}`); // print out the value
-
-            if (isKeyInColumns) {
-                obj[key] = responder[key];
-            }
+            
+            obj[key] = responder[key];
+            
+        }
+        for (let key2 in shiftTypeColumns.value ){
+            if(responder[shiftTypeColumns.value[key2]] != undefined){
+                obj[shiftTypeColumns.value[key2]] = responder[shiftTypeColumns.value[key2]];
+            } 
+            else{
+                obj[shiftTypeColumns.value[key2]] = 0;
+            }   
         }
         if (!obj.hasOwnProperty('certExpiration')) {
             obj.certExpiration = responder.getCertExpiration();
         }
-        // add other additional keys and values as needed...
+        console.log(obj)
         return obj;
     });
     
