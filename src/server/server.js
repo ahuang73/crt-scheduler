@@ -39,14 +39,13 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 passport.use(new OIDCStrategy({
-  identityMetadata: `${process.env.DISCOVERY_URL}/adfs/.well-known/openid-configuration`,
+  identityMetadata: `${process.env.DISCOVERY_URL}`,
   clientID: process.env.ADFS_CLIENT_ID,
   responseType: 'id_token',
   responseMode: 'form_post',
   redirectUrl: `${process.env.HOSTNAME}/oauth2/callback`,
   passReqToCallback: true,
-  //loggingLevel: 'info',
-  //scope: ['winaccountname'],
+  loggingLevel: 'debug',
   useCookieInsteadOfSession: true,
   cookieEncryptionKeys: [{ key: '12345678901234567890123456789012', 'iv': '123456789012' }],  // IDK what this does lol
 
@@ -132,44 +131,6 @@ function restrict(check){
   }
 }
 
-app.get('/oauth2/login',
-  passport.authenticate('azuread-openidconnect', {
-      prompt: 'login'
-  })
-)
-
-app.post('/oauth2/callback', 
-  passport.authenticate('azuread-openidconnect', { failureRedirect: process.env.SERVER_LOGIN_REDIRECT, prompt: 'login'}),
-  regenerateSessionAfterAuthentication,
-  function (req, res) {
-      // Successful authentication, redirect home.
-      res.redirect(process.env.SERVER_LOGIN_REDIRECT);
-  }
-)
-
-app.post('/oauth/logout/', (req, res, next)=>{
-  // Logout is broken with azure-ad, so we just do it manually!
-  if (req.session.passport) {
-      delete req.session.passport.user;
-  }
-  let prevSession = req.session;
-    
-  req.session.save(function(err) {
-      if (err) {
-         return next(err)
-      }
-    
-      // regenerate the session, which is good practice to help
-      // guard against forms of session fixation
-      req.session.regenerate(function(err) {
-          if (err) {
-              return next(err);
-          }
-          // You may want to redirect somewhere here!!
-          return res.status(200).json({'status': 'ok'})
-      });
-  });
-})
 
 
 app.get('/api/shiftsdata', async (req, res) => {
@@ -313,9 +274,7 @@ app.get('/api/responderdata/:position', async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+
 
 app.delete('/api/shifttypedata/delete/:id', async (req, res) => {
   try {
@@ -343,3 +302,6 @@ app.delete('/api/shifttypedata/delete/:id', async (req, res) => {
   }
 });
 
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
