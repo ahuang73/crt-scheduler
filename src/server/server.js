@@ -41,9 +41,10 @@ app.use(passport.session());
 passport.use(new OIDCStrategy({
   identityMetadata: `${process.env.DISCOVERY_URL}`,
   clientID: process.env.ADFS_CLIENT_ID,
-  responseType: 'id_token',
+  clientSecret: process.env.CLIENT_SECRET,
+  responseType: 'code',
   responseMode: 'form_post',
-  redirectUrl: `${process.env.HOSTNAME}/oauth2/callback`,
+  redirectUrl: `https://${process.env.SERVER_LOGIN_REDIRECT}`,
   passReqToCallback: true,
   loggingLevel: 'debug',
   useCookieInsteadOfSession: true,
@@ -302,6 +303,7 @@ app.delete('/api/shifttypedata/delete/:id', async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+app.listen(process.env.PORT||3000, process.env.HOST||'localhost', ()=>{
+  console.log(`Server is running on port ${process.env.PORT}`);
+  console.log(`login url: http://${process.env.HOST}:${process.env.PORT}/oauth2/login`)
+})
