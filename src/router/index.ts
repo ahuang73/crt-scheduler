@@ -50,6 +50,11 @@ const router = createRouter({
       path: '/eot',
       name: 'endofterm',
       component: () => import('../views/EndOfTermView.vue')
+    },
+    {
+      path: '/login',
+      name: 'Login',
+      component: () => import('../views/LoginView.vue')
     }
   ]
 })
