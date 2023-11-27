@@ -28,7 +28,7 @@ import { ref, onMounted } from 'vue';
                     <CDropdown v-model="formData.Type">
                         <CDropdownToggle color="primary" variant="outline" id="Type">{{ formData.Type }}</CDropdownToggle>
                         <CDropdownMenu>
-                            <CDropdownItem v-for="typeOption in TypeOptions" :key="typeOption._id"
+                            <CDropdownItem v-for="typeOption in TypeOptions" :key="typeOption.Name"
                                 @click="formData.Type = typeOption">{{ typeOption }}</CDropdownItem>
                         </CDropdownMenu>
                     </CDropdown>
@@ -50,7 +50,7 @@ import { ref, onMounted } from 'vue';
                     <CDropdown v-model="formData.Primary">
                         <CDropdownToggle color="primary" variant="outline">{{ formData.Primary }}</CDropdownToggle>
                         <CDropdownMenu>
-                            <CDropdownItem v-for="primaryOption in PrimaryOptions" :key="primaryOption._id"
+                            <CDropdownItem v-for="primaryOption in PrimaryOptions" :key="primaryOption"
                                 @click="formData.Primary = primaryOption">{{ primaryOption }}</CDropdownItem>
                         </CDropdownMenu>
                     </CDropdown>
@@ -62,7 +62,7 @@ import { ref, onMounted } from 'vue';
                     <CDropdown v-model="formData.Secondary">
                         <CDropdownToggle color="primary" variant="outline">{{ formData.Secondary }}</CDropdownToggle>
                         <CDropdownMenu>
-                            <CDropdownItem v-for="secondaryOption in SecondaryOptions" :key="secondaryOption._id"
+                            <CDropdownItem v-for="secondaryOption in SecondaryOptions" :key="secondaryOption"
                                 @click="formData.Secondary = secondaryOption">{{ secondaryOption }}
                             </CDropdownItem>
                         </CDropdownMenu>
@@ -76,7 +76,7 @@ import { ref, onMounted } from 'vue';
                     <CDropdown v-model="formData.Rookie">
                         <CDropdownToggle color="primary" variant="outline">{{ formData.Rookie }}</CDropdownToggle>
                         <CDropdownMenu>
-                            <CDropdownItem v-for="rookieOption in RookieOptions" :key="rookieOption._id"
+                            <CDropdownItem v-for="rookieOption in RookieOptions" :key="rookieOption"
                                 @click="formData.Rookie = rookieOption">{{ rookieOption }}</CDropdownItem>
                         </CDropdownMenu>
                     </CDropdown>
@@ -108,11 +108,12 @@ try {
 
     // Fetch Responders data for Primary, Secondary, and Rookie dropdowns
     const primaries = await axios.get('http://localhost:3000/api/responderdata/Primary');
-    PrimaryOptions.value = primaries.data.map((primary: any) => primary.name);
+    PrimaryOptions.value = primaries.data.map((primary: any) => primary.Name);
     const secondaries = await axios.get('http://localhost:3000/api/responderdata/Secondary');
-    SecondaryOptions.value = secondaries.data.map((secondary: any) => secondary.name);
+    SecondaryOptions.value = secondaries.data.map((secondary: any) => secondary.Name);
     const rookies = await axios.get('http://localhost:3000/api/responderdata/Rookie');
-    RookieOptions.value = rookies.data.map((rookie: any) => rookie.name);
+    RookieOptions.value = rookies.data.map((rookie: any) => rookie.Name);
+    console.log(PrimaryOptions.value, SecondaryOptions.value, RookieOptions.value);
 } catch (error) {
     console.error('Error fetching data:', error);
 }
@@ -154,7 +155,15 @@ export default {
                 this.formData.Start = tempStart.getHours() + ':' + tempStart.getMinutes()
                 this.formData.End = tempEnd.getHours() + ':' + tempEnd.getMinutes()
 
-
+                if(this.formData.Primary == "Primary"){
+                    this.formData.Primary = ""
+                }
+                if(this.formData.Secondary == "Secondary"){
+                    this.formData.Secondary = ""
+                }
+                if(this.formData.Rookie == "Rookie"){
+                    this.formData.Rookie = ""
+                }
                 // Send formData to your backend API to save in MongoDB
                 const response = await axios.post('http://localhost:3000/api/shiftsdata', this.formData);
                 console.log('Shift created:', response.data, this.formData, this.tempData);

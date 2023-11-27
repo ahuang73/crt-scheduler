@@ -31,13 +31,20 @@ app.use(session({
   secret: process.env.CLIENT_SECRET||"PROVIDE_SECRET",
   resave: false,
   cookie: {maxAge: 7*24*60*60*1000}, // Optionally add secure: true if https,
-  secure:true,
+  secure:false,
   saveUninitialized: true
 }))
 
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  next();
+});
 passport.use(new OIDCStrategy({
   identityMetadata: `${process.env.DISCOVERY_URL}`,
   clientID: process.env.ADFS_CLIENT_ID,
@@ -149,6 +156,26 @@ app.get('/api/shiftsdata', async (req, res) => {
   }
 });
 
+app.get('/api/shiftsdata/responder/:name', async (req, res) => {
+  try {
+    await client.connect();
+
+    const db = client.db(dbName);
+    const collection = db.collection("shifts");
+    const name = req.params.name.replace("+"," ");
+    const shifts = await collection.find({$or:[
+      {Primary: name},
+      {Secondary: name},
+      {Rookie: name}
+    ]}).toArray();
+    console.log(`Shifts with responder ${name} retrieved`)
+    res.json(shifts);
+  } catch (error) {
+    console.error('Error fetching shifts:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 app.post('/api/shiftsdata', async (req, res) => {
   try {
     await client.connect();
@@ -171,6 +198,30 @@ app.post('/api/shiftsdata', async (req, res) => {
     client.close();
   }
 });
+app.post('/api/shiftsdata/update/:id', async (req, res) => {
+  try {
+    await client.connect();
+    const db = client.db(dbName);
+    const collection = db.collection('shifts');
+
+    // Extract shift data from the request body
+    const shiftID = req.params.id;
+    // Exclude the _id field from the update
+    const { _id, ...updateFields } = req.body;
+
+    // Insert the shift data into the MongoDB collection
+    const result = await collection.updateOne({_id: new ObjectId(shiftID)}, {$set: updateFields});
+    console.log(`Matched ${result.matchedCount} document(s) and modified ${result.modifiedCount} document(s)`);
+
+  } catch (error) {
+    console.error('Error creating shift:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  } finally {
+    // Close the MongoDB connection
+    client.close();
+  }
+});
+
 
 
 app.get('/api/shifttypedata', async (req, res) => {
@@ -229,6 +280,8 @@ app.get('/api/responderdata', async (req, res) => {
   }
 });
 
+
+
 app.post('/api/responderdata', async (req, res) => {
   try {
     await client.connect();
@@ -261,9 +314,9 @@ app.get('/api/responderdata/:position', async (req, res) => {
     const collection = db.collection("responders");
 
     const position = req.params.position;
-
+    console.log(position)
     // Fetch responders with the specified position
-    const responders = await collection.find({ position: position }).toArray();
+    const responders = await collection.find({ Position: position }).toArray();
 
     res.json(responders);
     console.log(`Responders with position ${position} retrieved`);
@@ -274,7 +327,27 @@ app.get('/api/responderdata/:position', async (req, res) => {
     client.close();
   }
 });
+app.get('/api/responderdata/user/:username', async (req, res) => {
+  try {
+    await client.connect();
 
+    const db = client.db(dbName);
+    const collection = db.collection("responders");
+
+    const username = req.params.username;
+
+    // Fetch responders with the specified position
+    const responders = await collection.find({ Username: username }).toArray();
+
+    res.json(responders);
+    console.log(`Responders with username ${username} retrieved`);
+  } catch (error) {
+    console.error('Error fetching responders:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  } finally {
+    client.close();
+  }
+});
 
 
 app.delete('/api/shifttypedata/delete/:id', async (req, res) => {

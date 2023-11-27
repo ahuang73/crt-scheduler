@@ -1,42 +1,165 @@
 <script setup lang="ts">
-import ProgressBar from '../components/ProgressBar.vue'
-import ShiftTable from '../components/ShiftTable.vue'
+import axios from 'axios';
+import { CProgressBar, CProgress, CTable } from '@coreui/vue';
+import { ref } from 'vue';
+import { Responder, ShiftType, Shift } from '@/Classes';
 </script>
 
 
 <template>
     <div class="page-header">
         <h1>
-            John Doe (Secondary)
+            {{ `${responder[0].Name} (${responder[0].Position})` }}
 
         </h1>
 
         <div class="row">
             <div class="well well-small span-6">
                 <h4>Certifications</h4>
-                <p>SFA expiration date: yyyy-mm-dd</p>
-                <p>BLS expiration date: yyyy-mm-dd</p>
-                <p>FR expiration date: yyyy-mm-dd</p>
+                <p>SFA expiration date: {{ formatDate(responder[0].SFAexpiry) }}</p>
+                <p>BLS expiration date: {{ formatDate(responder[0].BLSexpiry) }}</p>
+                <p>FR expiration date: {{ formatDate(responder[0].FRexpiry) }}</p>
                 <p>
                 </p>
-                <p>Based on your expiration dates, you will not be able to take shifts after yyyy-mm-dd
+                <p>Based on your expiration dates, you will not be able to take shifts after {{ responder[0].CertExpiration
+                }}
                 </p>
                 <p>Contact the Directors of Administration and Scheduling if you have more recent certifications</p>
             </div>
         </div>
-       
+
     </div>
-    <ProgressBar></ProgressBar>
-        <h1>Upcoming Shifts</h1>
-        <p>There are no shifts to display at this time.</p>
-        <h1>Past Shifts</h1>
-    <ShiftTable></ShiftTable>
+
+    <div v-for="shiftType in shift_types">
+        <h6>{{ `${shiftType.Name}: ${responder[0][shiftType.Name]}/${shiftType.SecondaryReq}` }}</h6>
+        <CProgress class="mb-3">
+            <CProgressBar :value="(responder[0][shiftType.Name] / shiftType.SecondaryReq) * 100" />
+        </CProgress>
+
+
+    </div>
+
+    <h1>Upcoming Shifts</h1>
+    <p v-if="upcomingShifts?.length === 0">There are no upcoming shifts to display.</p>
+    <div v-else>
+        <CTable :columns="columns" :items="upcomingShifts" />
+    </div>
+    <h1>Past Shifts</h1>
+    <p v-if="pastShifts?.length === 0">There are no past shifts to display.</p>
+    <div v-else>
+        <CTable :columns="columns" :items="pastShifts" />
+    </div>
 </template>
+
+<script lang = "ts">
+const responder = ref<Responder[]>();
+const shift_types = ref<ShiftType[]>();
+const shiftData = ref<Shift[]>();
+const upcomingShifts = ref<Shift[]>();
+const pastShifts = ref<Shift[]>();
+const username = "ahuang"
+const formatDate = (dateString: string | undefined): string => {
+    if (!dateString) return '';
+
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const month = date.getMonth() + 1; // Months are zero-based
+    const year = date.getFullYear();
+
+    return `${year}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`;
+};
+try {
+
+    const response = await axios.get(`http://localhost:3000/api/responderdata/user/${username}`);
+    responder.value = response.data;
+
+    const shiftTypesResponse = await axios.get('http://localhost:3000/api/shifttypedata');
+    shift_types.value = shiftTypesResponse.data;
+
+    for (let shiftType in shift_types.value) {
+        if (responder.value[0][shift_types.value[shiftType].Name] == undefined) {
+            responder.value[0][shift_types.value[shiftType].Name] = 0
+        }
+
+
+    }
+    const responderName = responder.value[0].Name.replace(" ", "+")
+
+    const shiftTableResponse = await axios.get('http://localhost:3000/api/shiftsdata/responder/' + responderName);
+    shiftData.value = shiftTableResponse.data;
+
+    upcomingShifts.value = shiftData.value.filter((shift: Shift) => {
+        const [day, month, year] = shift.Date.split('-');
+        const shiftDate = new Date(`${year}-${month}-${day}`);
+        console.log('Shift Date:', shift.Date, 'Parsed Date:', shiftDate);
+        return shiftDate >= new Date();
+    });
+
+    pastShifts.value = shiftData.value.filter((shift: Shift) => {
+        const [day, month, year] = shift.Date.split('-');
+        const shiftDate = new Date(`${year}-${month}-${day}`);
+        console.log('Shift Date:', shift.Date, 'Parsed Date:', shiftDate);
+        return shiftDate < new Date();
+    });
+
+} catch (error) {
+    console.error('Error fetching Responders:', error);
+}
+
+export default {
+    data: () => {
+        return {
+            columns: [
+                {
+                    key: "Date",
+                    _props: { scope: "col" },
+                },
+                {
+                    key: "Name",
+                    _props: { scope: "col" },
+                },
+                {
+                    key: "Location",
+                    _props: { scope: "col" },
+                },
+                {
+                    key: "Start",
+                    label: "Start Time",
+                    _props: { scope: "col" },
+                },
+                {
+                    key: "End",
+                    label: "End Time",
+                    _props: { scope: "col" },
+                },
+                {
+                    key: "Primary",
+                    _props: { scope: "col" },
+                },
+                {
+                    key: "Secondary",
+                    _props: { scope: "col" },
+                },
+                {
+                    key: "Rookie",
+                    _props: { scope: "col" },
+                },
+                {
+                    key: "Type",
+                    _props: { scope: "col" },
+                },
+            ]
+
+        };
+    },
+}
+</script>
 
 <style scoped>
 .row {
     padding-bottom: 9px;
 }
+
 .well {
     min-height: 20px;
     padding: 19px;
@@ -47,10 +170,11 @@ import ShiftTable from '../components/ShiftTable.vue'
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
     border-radius: 4px;
-    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.05);
-    -moz-box-shadow: inset 0 1px 1px rgba(0,0,0,0.05);
-    box-shadow: inset 0 1px 1px rgba(0,0,0,0.05);
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+    -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
 }
+
 .page-header {
     padding-bottom: 9px;
     margin: 80px 0 30px;

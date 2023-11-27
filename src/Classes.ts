@@ -1,36 +1,36 @@
 
 export class ShiftType {
-        _id: number | string;
-        Name: string;
-        PrimaryReq: number;
-        SecondaryReq: number;
-        CriticalTime: string;
-        HoursTaken: string;
-        NaughtyList: string;
-        IsDefault: boolean;
-    
-        constructor(
-            _id: number | string,
-            Name: string,
-            PrimaryReq: number,
-            SecondaryReq: number,
-            CriticalTime: string,
-            HoursTaken: string,
-            NaughtyList: string,
-            IsDefault: boolean
-        ) {
-            this._id = _id;
-            this.Name = Name;
-            this.PrimaryReq = PrimaryReq;
-            this.SecondaryReq = SecondaryReq;
-            this.CriticalTime = CriticalTime;
-            this.HoursTaken = HoursTaken;
-            this.NaughtyList = NaughtyList;
-            this.IsDefault = IsDefault;
-        }
-    }
+    _id: number | string;
+    Name: string;
+    PrimaryReq: number;
+    SecondaryReq: number;
+    CriticalTime: string;
+    HoursTaken: string;
+    NaughtyList: string;
+    IsDefault: boolean;
 
-  
+    constructor(
+        _id: number | string,
+        Name: string,
+        PrimaryReq: number,
+        SecondaryReq: number,
+        CriticalTime: string,
+        HoursTaken: string,
+        NaughtyList: string,
+        IsDefault: boolean
+    ) {
+        this._id = _id;
+        this.Name = Name;
+        this.PrimaryReq = PrimaryReq;
+        this.SecondaryReq = SecondaryReq;
+        this.CriticalTime = CriticalTime;
+        this.HoursTaken = HoursTaken;
+        this.NaughtyList = NaughtyList;
+        this.IsDefault = IsDefault;
+    }
+}
+
+
 export class Responder {
     _id: string;
     Username: string;
@@ -68,5 +68,43 @@ export class Responder {
         const timeDiff = Math.abs(earliestDate.getTime() - today.getTime());
         const diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
         return `${diffDays} days`;
+    }
+}
+
+export class Shift {
+
+    public _id: string;
+    public Date: string;
+    public Name: string;
+    public Location: string;
+    public Primary: string;
+    public Secondary: string;
+    public Rookie: string;
+    public Type: string;
+    public End: string;
+    public Start: string;
+
+    constructor(shiftData: {
+        _id: string;
+        Date: string;
+        Name: string;
+        Location: string;
+        Primary: string;
+        Secondary: string;
+        Rookie: string;
+        Type: string;
+        End: string;
+        Start: string;
+    }) {
+        this._id = shiftData._id;
+        this.Date = shiftData.Date;
+        this.Name = shiftData.Name;
+        this.Location = shiftData.Location;
+        this.Primary = shiftData.Primary;
+        this.Secondary = shiftData.Secondary;
+        this.Rookie = shiftData.Rookie;
+        this.Type = shiftData.Type;
+        this.End = shiftData.End;
+        this.Start = shiftData.Start;
     }
 }

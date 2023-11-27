@@ -47,8 +47,43 @@ import { CButton, CTable, CProgress, CProgressBar } from '@coreui/vue';
         <CButton color="primary" variant="outline" value="show_all" @click="showAllShifts">Show All Shifts</CButton>
         <CButton color="primary" variant="outline" value="show_current" @click="showCurrShifts">Show Current Shifts
         </CButton>
-        <div>
-            <CTable :columns="columns" :items="filteredShifts" />
+        <div class="shift-table">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Date</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Location</th>
+                        <th scope="col">Start Time</th>
+                        <th scope="col">End Time</th>
+                        <th scope="col">Primary</th>
+                        <th scope="col">Secondary</th>
+                        <th scope="col">Rookie</th>
+                        <th scope="col">Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="shift in filteredShifts" :key="shift._id">
+                        <td>{{ shift.Date }}</td>
+                        <td>{{ shift.Name }}</td>
+                        <td>{{ shift.Location }}</td>
+                        <td>{{ shift.Start }}</td>
+                        <td>{{ shift.End }}</td>
+                        <td v-if="shift.Primary === '' && currentResponder[0].Position == 'Primary'" class="text-start">
+                            <CButton @click="takeShift(shift)" class="text-start">Take Shift</CButton>
+                        </td>
+                        <td v-else>{{ shift.Primary }}</td>
+                        <td v-if="shift.Secondary === '' && currentResponder[0].Position=='Secondary' " class="text-start">
+                            <CButton @click="takeShift(shift)" class="text-start">Take Shift</CButton>
+                        </td>
+                        <td v-else>{{ shift.Secondary }}</td>
+                        <td v-if="shift.Rookie === '' && currentResponder[0].Position == 'Rookie'" class="text-start">
+                            <CButton @click="takeShift(shift)" class="text-start">Take Shift</CButton>
+                        </td>
+                        <td>{{ shift.Type }}</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
     </div>
@@ -58,6 +93,10 @@ import { CButton, CTable, CProgress, CProgressBar } from '@coreui/vue';
 <script lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
+import { Responder, Shift } from '@/Classes';
+
+const currentResponder = ref<Responder[]>([]);
+const currentUsername = 'ahuang';
 const shifts_data = ref([]);
 const showCurrentShifts = ref(true);
 const showAllShifts = () => {
@@ -67,10 +106,15 @@ const showAllShifts = () => {
 const showCurrShifts = () => {
     showCurrentShifts.value = true;
 };
+
+
 try {
     const response = await axios.get('http://localhost:3000/api/shiftsdata');
     shifts_data.value = response.data;
-    console.log(shifts_data.value)
+
+    const responderResponse = await axios.get('http://localhost:3000/api/responderdata/user/' + currentUsername);
+    currentResponder.value = responderResponse.data;
+    
 } catch (error) {
     console.error('Error fetching shift data:', error);
 }
@@ -80,16 +124,16 @@ const filteredShifts = computed(() => {
     const filtered: any[] = [];
 
     for (const shift of shifts_data.value) {
-       
+
         const [day2, month2, year2] = shift.Date.split('-').map(Number);
         const [hour2, minute2] = shift.End.split(':').map(Number);
-        const shiftDate = new Date(year2, month2-1, day2, hour2, minute2)
+        const shiftDate = new Date(year2, month2 - 1, day2, hour2, minute2)
         console.log("Shift Date: " + shiftDate, "TODAY: " + today)
-        
+
         if (showCurrentShifts.value && shiftDate >= today) {
             filtered.push(shift);
         } else if (!showCurrentShifts.value) {
-            
+
             filtered.push(shift);
         }
     }
@@ -99,6 +143,32 @@ const filteredShifts = computed(() => {
 
 
 export default {
+    methods: {
+        async takeShift(shift: Shift) {
+            try {
+                // Perform the logic for taking the shift here
+                // For example, you can make an API call to update the shift status or perform any necessary actions.
+                // Assuming you have an API endpoint for taking shifts, modify the URL accordingly.
+                const updatedShift = {
+                    ...shift,
+                    [currentResponder.value[0].Position]: currentResponder.value[0].Name, // Replace 'John Doe' with the actual name or value
+                    // Update other fields if needed
+                };
+                console.log("SHIFT ID: " + shift._id);
+                const response = await axios.post(`http://localhost:3000/api/shiftsdata/update/${shift._id}`, updatedShift);
+                
+                // Handle the response or update the UI as needed
+                
+                // You may also want to refresh the data after taking the shift
+                const refreshResponse = await axios.get('http://localhost:3000/api/shiftsdata');
+                shifts_data.value = refreshResponse.data;
+                
+                console.log('Shift taken successfully:', response.data);
+            } catch (error) {
+                console.error('Error taking shift:', error);
+            }
+        },
+    },
     data: () => {
         return {
             scheduler: true,
