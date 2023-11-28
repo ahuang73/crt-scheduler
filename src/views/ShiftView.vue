@@ -109,10 +109,10 @@ const showCurrShifts = () => {
 
 
 try {
-    const response = await axios.get('http://localhost:3000/api/shiftsdata');
+    const response = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shiftsdata`);
     shifts_data.value = response.data;
 
-    const responderResponse = await axios.get('http://localhost:3000/api/responderdata/user/' + currentUsername);
+    const responderResponse = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/responderdata/user/` + currentUsername);
     currentResponder.value = responderResponse.data;
     
 } catch (error) {
@@ -128,7 +128,6 @@ const filteredShifts = computed(() => {
         const [day2, month2, year2] = shift.Date.split('-').map(Number);
         const [hour2, minute2] = shift.End.split(':').map(Number);
         const shiftDate = new Date(year2, month2 - 1, day2, hour2, minute2)
-        console.log("Shift Date: " + shiftDate, "TODAY: " + today)
 
         if (showCurrentShifts.value && shiftDate >= today) {
             filtered.push(shift);
@@ -154,15 +153,17 @@ export default {
                     [currentResponder.value[0].Position]: currentResponder.value[0].Name, // Replace 'John Doe' with the actual name or value
                     // Update other fields if needed
                 };
-                console.log("SHIFT ID: " + shift._id);
-                const response = await axios.post(`http://localhost:3000/api/shiftsdata/update/${shift._id}`, updatedShift);
+                const response = await axios.post(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shiftsdata/update/${shift._id}`, updatedShift);
                 
+                const updatedResponder = {
+                    ...currentResponder.value[0],
+                    [currentResponder.value[0][shift.Type]]: [currentResponder.value[0][shift.Type]]+1
+                    // Update other fields if needed
+                };
+                
+                console.log(currentResponder);
                 // Handle the response or update the UI as needed
-                
-                // You may also want to refresh the data after taking the shift
-                const refreshResponse = await axios.get('http://localhost:3000/api/shiftsdata');
-                shifts_data.value = refreshResponse.data;
-                
+               
                 console.log('Shift taken successfully:', response.data);
             } catch (error) {
                 console.error('Error taking shift:', error);

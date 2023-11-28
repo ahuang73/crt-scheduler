@@ -6,21 +6,16 @@
 </template>
 
 <script lang="ts">
-import axios from 'axios';
+
 export default {
   mounted() {
     // Send login request to the backend
-    this.login();
+    this.redirectToLogin();
   },
   methods: {
-    login() {
-      axios.get('http://localhost:3000/oauth2/login')
-        .then(response => {
-          console.log(response)
-        })
-        .catch(error => {
-          console.log(error)
-        });
+    redirectToLogin() {
+      const loginUrl = `${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/oauth2/login`;
+      window.location.href = loginUrl;
     }
   }
 }

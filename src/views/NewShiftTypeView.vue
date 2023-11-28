@@ -65,7 +65,7 @@ export default {
 
 
                 // Send formData to your backend API to save in MongoDB
-                const response = await axios.post('http://localhost:3000/api/shifttypedata', this.formData);
+                const response = await axios.post(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shifttypedata`, this.formData);
                 console.log('Shift Type Created:', response.data, this.formData);
 
                 this.$router.push('/shift_types')

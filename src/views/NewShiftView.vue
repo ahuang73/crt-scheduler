@@ -103,15 +103,15 @@ const RookieOptions = ref([]);
 
 try {
     // Fetch shift_types data and set it in the formData.TypeOptions array
-    const shiftTypesResponse = await axios.get('http://localhost:3000/api/shifttypedata');
+    const shiftTypesResponse = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shifttypedata`);
     TypeOptions.value = shiftTypesResponse.data.map((shiftType: any) => shiftType.Name);
 
     // Fetch Responders data for Primary, Secondary, and Rookie dropdowns
-    const primaries = await axios.get('http://localhost:3000/api/responderdata/Primary');
+    const primaries = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/responderdata/Primary`);
     PrimaryOptions.value = primaries.data.map((primary: any) => primary.Name);
-    const secondaries = await axios.get('http://localhost:3000/api/responderdata/Secondary');
+    const secondaries = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/responderdata/Secondary`);
     SecondaryOptions.value = secondaries.data.map((secondary: any) => secondary.Name);
-    const rookies = await axios.get('http://localhost:3000/api/responderdata/Rookie');
+    const rookies = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/responderdata/Rookie`);
     RookieOptions.value = rookies.data.map((rookie: any) => rookie.Name);
     console.log(PrimaryOptions.value, SecondaryOptions.value, RookieOptions.value);
 } catch (error) {
@@ -165,7 +165,7 @@ export default {
                     this.formData.Rookie = ""
                 }
                 // Send formData to your backend API to save in MongoDB
-                const response = await axios.post('http://localhost:3000/api/shiftsdata', this.formData);
+                const response = await axios.post('${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shiftsdata', this.formData);
                 console.log('Shift created:', response.data, this.formData, this.tempData);
 
                 this.$router.push('/shifts')

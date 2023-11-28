@@ -73,9 +73,9 @@ const handleDeleteButtonClick = (item) => {
 };
 try {
 
-    const response = await axios.get('http://localhost:3000/api/responderdata');
+    const response = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/responderdata`);
     let responderData = response.data.map((data: any) => new Responder(data)); // create a new Responder instance for each data
-    const response2 = await axios.get('http://localhost:3000/api/shifttypedata');
+    const response2 = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shifttypedata`);
     shiftTypes.value = response2.data;
 
 

@@ -53,7 +53,7 @@ import { ShiftType } from '../Classes';
 <script lang="ts">
 const shift_types = ref<ShiftType[]>([]);
 try {
-    const response = await axios.get('http://localhost:3000/api/shifttypedata');
+    const response = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shifttypedata`);
     shift_types.value = response.data;
     console.log(shift_types.value)
 } catch (error) {
@@ -75,7 +75,7 @@ const handleDelete = async (index: any) => {
         const shiftTypeToDelete = shift_types.value[index];
         console.log('Deleting item:', shiftTypeToDelete)
         // Assuming there's an endpoint for deleting, replace 'your_delete_endpoint' with the actual endpoint
-        await axios.delete(`http://localhost:3000/api/shifttypedata/delete/${shiftTypeToDelete._id}`);
+        await axios.delete(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shifttypedata/delete/${shiftTypeToDelete._id}`);
         
         // Remove the deleted item from the local array
         shift_types.value.splice(index, 1);

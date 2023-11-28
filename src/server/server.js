@@ -6,12 +6,14 @@ import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import express from 'express';
 import cors from 'cors';
+import https from 'https';
+import fs from 'fs';
 
 
 dotenv.config();
 const app = express()
 const port = process.env.PORT || 3000;
-const uri = "mongodb+srv://crt_user:qWYXJj1KOtWkG61J@crt-data.olatvi5.mongodb.net/?retryWrites=true&w=majority";
+const uri = process.env.MONGODB_URL;
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
@@ -21,7 +23,10 @@ const client = new MongoClient(uri, {
   }
 });
 const dbName = "CRT-Data"
+const key = fs.readFileSync(process.env.SSL_KEY_PATH);
+const cert = fs.readFileSync(process.env.SSL_CERT_PATH);
 
+const server = https.createServer({key: key, cert: cert }, app);
 app.use(express.json());
 app.use(cors());
 
@@ -92,9 +97,12 @@ function regenerateSessionAfterAuthentication(req, res, next) {
 app.get('/oauth2/login',
     passport.authenticate('azuread-openidconnect', {
         prompt: 'login'
-    })
+    }),
+    (req, res) => {
+
+    }
 )
-app.post('/oauth2/callback', 
+app.post('/oidc/callback', 
     passport.authenticate('azuread-openidconnect', { failureRedirect: process.env.SERVER_LOGIN_REDIRECT, prompt: 'login'}),
     regenerateSessionAfterAuthentication,
     function (req, res) {
@@ -348,7 +356,27 @@ app.get('/api/responderdata/user/:username', async (req, res) => {
     client.close();
   }
 });
+// app.post('/api/responderdata/update/user/:username', async (req, res) => {
+//   try {
+//     await client.connect();
 
+//     const db = client.db(dbName);
+//     const collection = db.collection("responders");
+
+//     const username = req.params.username;
+
+//     // Fetch responders with the specified position
+//     const responders = await collection.updateOne({ Username: username }).toArray();
+
+//     res.json(responders);
+//     console.log(`Responders with username ${username} retrieved`);
+//   } catch (error) {
+//     console.error('Error fetching responders:', error);
+//     res.status(500).json({ error: 'Internal Server Error' });
+//   } finally {
+//     client.close();
+//   }
+// });
 
 app.delete('/api/shifttypedata/delete/:id', async (req, res) => {
   try {
@@ -376,7 +404,7 @@ app.delete('/api/shifttypedata/delete/:id', async (req, res) => {
   }
 });
 
-app.listen(process.env.PORT||3000, process.env.HOST||'localhost', ()=>{
-  console.log(`Server is running on port ${process.env.PORT}`);
+server.listen(process.env.PORT||3000, process.env.HOST||'localhost', ()=>{
+  console.log(`Server is running on port ${process.env.PORT||3000}`);
   console.log(`login url: http://${process.env.HOST}:${process.env.PORT}/oauth2/login`)
 })

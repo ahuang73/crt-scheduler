@@ -70,10 +70,10 @@ const formatDate = (dateString: string | undefined): string => {
 };
 try {
 
-    const response = await axios.get(`http://localhost:3000/api/responderdata/user/${username}`);
+    const response = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/responderdata/user/${username}`);
     responder.value = response.data;
 
-    const shiftTypesResponse = await axios.get('http://localhost:3000/api/shifttypedata');
+    const shiftTypesResponse = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shifttypedata`);
     shift_types.value = shiftTypesResponse.data;
 
     for (let shiftType in shift_types.value) {
@@ -85,7 +85,7 @@ try {
     }
     const responderName = responder.value[0].Name.replace(" ", "+")
 
-    const shiftTableResponse = await axios.get('http://localhost:3000/api/shiftsdata/responder/' + responderName);
+    const shiftTableResponse = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shiftsdata/responder/` + responderName);
     shiftData.value = shiftTableResponse.data;
 
     upcomingShifts.value = shiftData.value.filter((shift: Shift) => {
