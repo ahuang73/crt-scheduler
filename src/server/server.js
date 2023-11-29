@@ -1,6 +1,7 @@
 import { MongoClient, ServerApiVersion, ObjectId } from 'mongodb'
 import passport from 'passport'
 import { OIDCStrategy } from 'passport-azure-ad';
+import { Strategy } from 'passport-openidconnect';
 import dotenv from 'dotenv';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
@@ -8,7 +9,7 @@ import express from 'express';
 import cors from 'cors';
 import https from 'https';
 import fs from 'fs';
-
+import axios from 'axios';
 
 dotenv.config();
 const app = express()
@@ -30,8 +31,6 @@ const server = https.createServer({key: key, cert: cert }, app);
 app.use(express.json());
 app.use(cors());
 
-app.use(cookieParser());
-
 app.use(session({
   secret: process.env.CLIENT_SECRET||"PROVIDE_SECRET",
   resave: false,
@@ -39,6 +38,8 @@ app.use(session({
   secure:false,
   saveUninitialized: true
 }))
+
+app.use(cookieParser());
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -50,32 +51,65 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Credentials', 'true');
   next();
 });
-passport.use(new OIDCStrategy({
-  identityMetadata: `${process.env.DISCOVERY_URL}`,
+
+async function fetchOidcConfiguration() {
+  try {
+    const response = await axios.get(process.env.DISCOVERY_URL);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching OIDC configuration:', error);
+    throw error;
+  }
+}
+function parseJwt (token) {
+  return JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+}
+const oidcConfiguration = await fetchOidcConfiguration();
+passport.use(new Strategy({
+  issuer: oidcConfiguration.issuer,
+  authorizationURL: oidcConfiguration.authorization_endpoint,
+  tokenURL: oidcConfiguration.token_endpoint,
   clientID: process.env.ADFS_CLIENT_ID,
   clientSecret: process.env.CLIENT_SECRET,
   responseType: 'code',
   responseMode: 'form_post',
-  redirectUrl: `https://${process.env.SERVER_LOGIN_REDIRECT}`,
-  passReqToCallback: true,
+  callbackURL: `${process.env.SERVER_LOGIN_REDIRECT}`,
+  userInfoURL:oidcConfiguration.userinfo_endpoint,
   loggingLevel: 'debug',
   useCookieInsteadOfSession: true,
-  cookieEncryptionKeys: [{ key: '12345678901234567890123456789012', 'iv': '123456789012' }],  // IDK what this does lol
-
+  cookieEncryptionKeys: [{ key: '12345678901234567890123456789012', 'iv': '123456789012' }], 
 },
-  function (req, iss, sub, profile, accessToken, refreshToken, done) {
+  function (req, iss, sub, profile, accessToken, refreshToken, claims, done) {
     // You'll probably want to do some work here
     // You can pull out whatever you want from the profile here
-    let username = profile._json.winaccountname
-    if (!username) {
-      return done(new Error("No username found"), null);
-    }
-    return done(null, { username: username })
+    
+    const decodedProfile = parseJwt(profile)
+    console.log("decoded:", decodedProfile) 
+    const decodedClaims = parseJwt(claims['id_token'])
+    console.log("decodedClaims", decodedClaims) 
+    console.log("claims", claims) 
+    console.log("req.user", req.user)
+    // let username = profile._json.winaccountname
+    // if (!username) {
+    //   return done(new Error("No username found"), null);
+    // }
+    return done(null, profile);
   }
 ));
+app.get('/protected-route', (req, res) => {
+  // Access the claims from the user object
+  const { username, name, email } = req.user._json;
+
+  // Use the claims as needed
+  console.log('Username:', username);
+  console.log('Name:', name);
+  console.log('Email:', email);
+
+  // Send a response
+  res.send('Protected route');
+});
 
 passport.serializeUser(function(user, done) {
-  // You can do some stuff here
   done(null, user);
 });
 
@@ -95,19 +129,21 @@ function regenerateSessionAfterAuthentication(req, res, next) {
   })
 }
 app.get('/oauth2/login',
-    passport.authenticate('azuread-openidconnect', {
+    passport.authenticate('openidconnect', {
         prompt: 'login'
     }),
     (req, res) => {
 
     }
 )
-app.post('/oidc/callback', 
-    passport.authenticate('azuread-openidconnect', { failureRedirect: process.env.SERVER_LOGIN_REDIRECT, prompt: 'login'}),
+app.get('/oidc/callback', 
+    passport.authenticate('openidconnect', { 
+      failureRedirect: process.env.SERVER_LOGIN_REDIRECT, 
+      prompt: 'login'}),
     regenerateSessionAfterAuthentication,
     function (req, res) {
         // Successful authentication, redirect home.
-        res.redirect(process.env.SERVER_LOGIN_REDIRECT);
+        res.redirect(process.env.FRONT_END_URL);
     }
 )
 
@@ -146,6 +182,9 @@ function restrict(check){
       }
   }
 }
+app.get('/restricted', restrict(), (req, res) => {
+  res.send(`Hello ${req.user.username}`)
+})
 
 
 
