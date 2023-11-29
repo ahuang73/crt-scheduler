@@ -88,11 +88,9 @@ passport.use(new Strategy({
     const decodedClaims = parseJwt(claims['id_token'])
     console.log("decodedClaims", decodedClaims) 
     console.log("claims", claims) 
-    console.log("req.user", req.user)
-    // let username = profile._json.winaccountname
-    // if (!username) {
-    //   return done(new Error("No username found"), null);
-    // }
+    console.log("req", req)
+    console.log("iss:", iss, "sub:", sub, "profile:", profile, "accessToken:", accessToken, "refreshToken:", refreshToken, "claims:", claims, "done:", done)
+
     return done(null, profile);
   }
 ));
@@ -130,7 +128,8 @@ function regenerateSessionAfterAuthentication(req, res, next) {
 }
 app.get('/oauth2/login',
     passport.authenticate('openidconnect', {
-        prompt: 'login'
+        prompt: 'login',
+        scope:['email','profile'],
     }),
     (req, res) => {
 
@@ -139,7 +138,8 @@ app.get('/oauth2/login',
 app.get('/oidc/callback', 
     passport.authenticate('openidconnect', { 
       failureRedirect: process.env.SERVER_LOGIN_REDIRECT, 
-      prompt: 'login'}),
+      prompt: 'login',
+      scope:['email','profile'],}),
     regenerateSessionAfterAuthentication,
     function (req, res) {
         // Successful authentication, redirect home.
