@@ -73,7 +73,7 @@ import { CButton, CTable, CProgress, CProgressBar } from '@coreui/vue';
                             <CButton @click="takeShift(shift)" class="text-start">Take Shift</CButton>
                         </td>
                         <td v-else>{{ shift.Primary }}</td>
-                        <td v-if="shift.Secondary === '' && currentResponder[0].Position=='Secondary' " class="text-start">
+                        <td v-if="shift.Secondary === '' && currentResponder[0].Position == 'Secondary'" class="text-start">
                             <CButton @click="takeShift(shift)" class="text-start">Take Shift</CButton>
                         </td>
                         <td v-else>{{ shift.Secondary }}</td>
@@ -93,11 +93,15 @@ import { CButton, CTable, CProgress, CProgressBar } from '@coreui/vue';
 <script lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
-import { Responder, Shift } from '@/Classes';
+import { Responder, Shift, User } from '@/Classes';
+import router from '@/router';
+
 
 const currentResponder = ref<Responder[]>([]);
 const currentUsername = 'ahuang';
 const shifts_data = ref([]);
+const logged_in = ref();
+const user = ref<User>();
 const showCurrentShifts = ref(true);
 const showAllShifts = () => {
     showCurrentShifts.value = false;
@@ -109,12 +113,24 @@ const showCurrShifts = () => {
 
 
 try {
-    const response = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shiftsdata`);
-    shifts_data.value = response.data;
-
-    const responderResponse = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/responderdata/user/` + currentUsername);
-    currentResponder.value = responderResponse.data;
+    const userDataString = document.cookie.replace(/(?:(?:^|.*;\s*)userData\s*=\s*([^;]*).*$)|^.*$/, '$1');
     
+    if (userDataString) {
+        const decodedUserData = decodeURIComponent(userDataString);
+        const jsonUser = JSON.parse(decodedUserData);
+        user.value = jsonUser;   
+        const uname = user.value.username;
+        const response = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shiftsdata`);
+        shifts_data.value = response.data;
+
+        const responderResponse = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/responderdata/user/` + uname);
+        currentResponder.value = responderResponse.data;
+        
+    } else {
+        router.push('/login')
+
+    }
+
 } catch (error) {
     console.error('Error fetching shift data:', error);
 }
@@ -154,16 +170,16 @@ export default {
                     // Update other fields if needed
                 };
                 const response = await axios.post(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shiftsdata/update/${shift._id}`, updatedShift);
-                
+
                 const updatedResponder = {
                     ...currentResponder.value[0],
-                    [currentResponder.value[0][shift.Type]]: [currentResponder.value[0][shift.Type]]+1
+                    [currentResponder.value[0][shift.Type]]: [currentResponder.value[0][shift.Type]] + 1
                     // Update other fields if needed
                 };
-                
+
                 console.log(currentResponder);
                 // Handle the response or update the UI as needed
-               
+
                 console.log('Shift taken successfully:', response.data);
             } catch (error) {
                 console.error('Error taking shift:', error);

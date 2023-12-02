@@ -2,7 +2,8 @@
 import axios from 'axios';
 import { CProgressBar, CProgress, CTable } from '@coreui/vue';
 import { ref } from 'vue';
-import { Responder, ShiftType, Shift } from '@/Classes';
+import { Responder, ShiftType, Shift, User } from '@/Classes';
+import router from '@/router';
 </script>
 
 
@@ -58,6 +59,7 @@ const shiftData = ref<Shift[]>();
 const upcomingShifts = ref<Shift[]>();
 const pastShifts = ref<Shift[]>();
 const username = "ahuang"
+const user = ref<User>();
 const formatDate = (dateString: string | undefined): string => {
     if (!dateString) return '';
 
@@ -69,38 +71,49 @@ const formatDate = (dateString: string | undefined): string => {
     return `${year}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`;
 };
 try {
+    const userDataString = document.cookie.replace(/(?:(?:^|.*;\s*)userData\s*=\s*([^;]*).*$)|^.*$/, '$1');
 
-    const response = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/responderdata/user/${username}`);
-    responder.value = response.data;
+    if (userDataString) {
+        const decodedUserData = decodeURIComponent(userDataString);
+        const jsonUser = JSON.parse(decodedUserData);
+        user.value = jsonUser;
+        const uname = user.value.username;
+        const response = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/responderdata/user/${uname}`);
+        responder.value = response.data;
 
-    const shiftTypesResponse = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shifttypedata`);
-    shift_types.value = shiftTypesResponse.data;
+        const shiftTypesResponse = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shifttypedata`);
+        shift_types.value = shiftTypesResponse.data;
 
-    for (let shiftType in shift_types.value) {
-        if (responder.value[0][shift_types.value[shiftType].Name] == undefined) {
-            responder.value[0][shift_types.value[shiftType].Name] = 0
+        for (let shiftType in shift_types.value) {
+            if (responder.value[0][shift_types.value[shiftType].Name] == undefined) {
+                responder.value[0][shift_types.value[shiftType].Name] = 0
+            }
+
+
         }
+        const responderName = responder.value[0].Name.replace(" ", "+")
 
+        const shiftTableResponse = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shiftsdata/responder/` + responderName);
+        shiftData.value = shiftTableResponse.data;
 
+        upcomingShifts.value = shiftData.value.filter((shift: Shift) => {
+            const [day, month, year] = shift.Date.split('-');
+            const shiftDate = new Date(`${year}-${month}-${day}`);
+            console.log('Shift Date:', shift.Date, 'Parsed Date:', shiftDate);
+            return shiftDate >= new Date();
+        });
+
+        pastShifts.value = shiftData.value.filter((shift: Shift) => {
+            const [day, month, year] = shift.Date.split('-');
+            const shiftDate = new Date(`${year}-${month}-${day}`);
+            console.log('Shift Date:', shift.Date, 'Parsed Date:', shiftDate);
+            return shiftDate < new Date();
+        });
+
+    } else {
+        router.push('/login')
     }
-    const responderName = responder.value[0].Name.replace(" ", "+")
 
-    const shiftTableResponse = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shiftsdata/responder/` + responderName);
-    shiftData.value = shiftTableResponse.data;
-
-    upcomingShifts.value = shiftData.value.filter((shift: Shift) => {
-        const [day, month, year] = shift.Date.split('-');
-        const shiftDate = new Date(`${year}-${month}-${day}`);
-        console.log('Shift Date:', shift.Date, 'Parsed Date:', shiftDate);
-        return shiftDate >= new Date();
-    });
-
-    pastShifts.value = shiftData.value.filter((shift: Shift) => {
-        const [day, month, year] = shift.Date.split('-');
-        const shiftDate = new Date(`${year}-${month}-${day}`);
-        console.log('Shift Date:', shift.Date, 'Parsed Date:', shiftDate);
-        return shiftDate < new Date();
-    });
 
 } catch (error) {
     console.error('Error fetching Responders:', error);

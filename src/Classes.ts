@@ -108,3 +108,15 @@ export class Shift {
         this.Start = shiftData.Start;
     }
 }
+
+export class User{
+    public username: String;
+    public email: String;
+
+    constructor(username: String, email: String){
+        this.username = username;
+        this.email = email;
+    }
+
+    
+}

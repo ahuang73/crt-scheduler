@@ -83,15 +83,8 @@ passport.use(new Strategy({
     // You'll probably want to do some work here
     // You can pull out whatever you want from the profile here
     
-    const decodedProfile = parseJwt(profile)
-    console.log("decoded:", decodedProfile) 
-    const decodedClaims = parseJwt(claims['id_token'])
-    console.log("decodedClaims", decodedClaims) 
-    console.log("claims", claims) 
-    console.log("req", req)
-    console.log("iss:", iss, "sub:", sub, "profile:", profile, "accessToken:", accessToken, "refreshToken:", refreshToken, "claims:", claims, "done:", done)
-
-    return done(null, profile);
+    const decodedProfile = parseJwt(profile); 
+    return done(null, decodedProfile);
   }
 ));
 app.get('/protected-route', (req, res) => {
@@ -143,8 +136,21 @@ app.get('/oidc/callback',
     regenerateSessionAfterAuthentication,
     function (req, res) {
         // Successful authentication, redirect home.
+        const userData ={
+          username: req.session.passport.user.username,
+          email: req.session.passport.user.email, 
+          profile: req.session.passport.user.profile,
+        }
+        const userDataString = JSON.stringify(userData)
+
+        res.cookie('userData', userDataString);
         res.redirect(process.env.FRONT_END_URL);
     }
+)
+app.get('/oidc/session', restrict(), (req, res)=>{
+      res.json(req.session.passport.user);        
+    }
+    
 )
 
 app.post('/oauth/logout/', (req, res, next)=>{

@@ -4,6 +4,7 @@ import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import axios from 'axios';
 import { ref, onMounted } from 'vue';
+import router from '@/router';
 
 </script>
 
@@ -96,12 +97,25 @@ import { ref, onMounted } from 'vue';
 
 
 <script lang="ts">
+import { User } from '@/Classes';
 const TypeOptions = ref([]);
 const PrimaryOptions = ref([]);
 const SecondaryOptions = ref([]);
 const RookieOptions = ref([]);
+const user = ref<User>();
 
 try {
+    const userDataString = document.cookie.replace(/(?:(?:^|.*;\s*)userData\s*=\s*([^;]*).*$)|^.*$/, '$1');
+    
+    if (userDataString) {
+        const decodedUserData = decodeURIComponent(userDataString);
+        const jsonUser = JSON.parse(decodedUserData);
+        user.value = jsonUser;   
+        const uname = user.value.username;
+        
+    } else {
+        router.push('/login')
+    }
     // Fetch shift_types data and set it in the formData.TypeOptions array
     const shiftTypesResponse = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shifttypedata`);
     TypeOptions.value = shiftTypesResponse.data.map((shiftType: any) => shiftType.Name);
