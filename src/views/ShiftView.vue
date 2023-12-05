@@ -100,6 +100,7 @@ import router from '@/router';
 const currentResponder = ref<Responder[]>([]);
 const currentUsername = 'ahuang';
 const shifts_data = ref([]);
+const scheduler = ref();
 const logged_in = ref();
 const user = ref<User>();
 const showCurrentShifts = ref(true);
@@ -114,12 +115,13 @@ const showCurrShifts = () => {
 
 try {
     const userDataString = document.cookie.replace(/(?:(?:^|.*;\s*)userData\s*=\s*([^;]*).*$)|^.*$/, '$1');
-    
     if (userDataString) {
         const decodedUserData = decodeURIComponent(userDataString);
         const jsonUser = JSON.parse(decodedUserData);
         user.value = jsonUser;   
+        
         const uname = user.value.username;
+        scheduler.value = user.value.isAdmin;
         const response = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shiftsdata`);
         shifts_data.value = response.data;
 
@@ -188,7 +190,7 @@ export default {
     },
     data: () => {
         return {
-            scheduler: true,
+            
             columns: [
                 {
                     key: "Date",

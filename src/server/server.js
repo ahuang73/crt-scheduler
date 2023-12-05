@@ -128,18 +128,27 @@ app.get('/oauth2/login',
 
     }
 )
+
 app.get('/oidc/callback', 
     passport.authenticate('openidconnect', { 
       failureRedirect: process.env.SERVER_LOGIN_REDIRECT, 
       prompt: 'login',
       scope:['email','profile'],}),
     regenerateSessionAfterAuthentication,
-    function (req, res) {
-        // Successful authentication, redirect home.
-        const userData ={
+    async function (req, res) {
+        const username = req.session.passport.user.username;
+        await client.connect();
+        const db = client.db(dbName);
+        const collection = db.collection("responders");
+        const responder = await collection.findOne({ Username: username });
+        if (responder.isAdmin == undefined){
+          responder.isAdmin = false;
+        }
+        const userData ={ 
           username: req.session.passport.user.username,
           email: req.session.passport.user.email, 
           profile: req.session.passport.user.profile,
+          isAdmin: responder.isAdmin,
         }
         const userDataString = JSON.stringify(userData)
 
@@ -153,7 +162,7 @@ app.get('/oidc/session', restrict(), (req, res)=>{
     
 )
 
-app.post('/oauth/logout/', (req, res, next)=>{
+app.get('/oauth/logout/', (req, res, next)=>{
   // Logout is broken with azure-ad, so we just do it manually!
   if (req.session.passport) {
       delete req.session.passport.user;

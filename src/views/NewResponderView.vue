@@ -4,6 +4,8 @@ import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import axios from 'axios';
 import { ref } from 'vue';
+import router from '@/router';
+import { json } from 'stream/consumers';
 </script>
 
 <template>
@@ -63,7 +65,18 @@ const format = (date: { getMonth: () => number; getFullYear: () => any; }) => {
 
     return `${month}/${year}`;
 }
+const userDataString = document.cookie.replace(/(?:(?:^|.*;\s*)userData\s*=\s*([^;]*).*$)|^.*$/, '$1');
+console.log(document.cookie)
+if (userDataString) {
+    const decodedUserData = decodeURIComponent(userDataString);
+    const jsonUser = JSON.parse(decodedUserData);
 
+    const uname = jsonUser.username;
+    console.log(jsonUser)
+
+} else {
+    router.push('/login')
+}
 export default {
     components: { VueDatePicker },
 

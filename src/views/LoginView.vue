@@ -1,40 +1,47 @@
+<script setup lang = 'ts'>
+import { CButton } from '@coreui/vue';
+</script>
 <template>
-  <div>
-    <h1>Redirecting to UWaterloo ADFS</h1>
-    <p>Please wait while we redirect you to the login page...</p>
+  <div class="login-page">
+    <h1 class="page-title">Campus Response Team</h1>
+    <p class="page-description">Hello Responder. Sign in to access your account.</p>
+    <CButton @click="redirectToLogin" color="primary" class="sign-in-button">Sign In</CButton>
   </div>
 </template>
 
 <script lang="ts">
+
 export default {
-
-  data() {
-    return {
-      user: {},
-    };
-  },
-  mounted() {
-    // Send login request to the backend
-    if(this.user == null){
-      this.redirectToLogin();
-    }
-
-  },
   methods: {
     redirectToLogin() {
       const loginUrl = `${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/oauth2/login`;
       window.location.href = loginUrl;
     }
   },
-  created() {
-    // Check for the authentication token in the cookie
-    const userDataString = JSON.stringify(this.$cookies.get('userData'));
-    if(userDataString){
-      this.user = JSON.parse(userDataString);
-    }
-    else{
-      console.log("No user data found");
-    }
-  }
-}
+};
 </script>
+
+<style scoped>
+.login-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #f8f9fa; /* Set a light background color */
+}
+
+.page-title {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  color: #343a40; /* Set a dark text color */
+}
+
+.page-description {
+  font-size: 1rem;
+  margin-bottom: 30px;
+  color: #6c757d; /* Set a slightly lighter text color */
+}
+
+
+</style>

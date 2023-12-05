@@ -1,6 +1,28 @@
 <script setup lang="ts">
 import  {CNavbar, CContainer, CNavbarBrand, CNavbarToggler, CCollapse,CNavbarNav,CNavItem,CNavLink,CDropdown,CDropdownToggle,CDropdownMenu,CDropdownItem,CDropdownDivider,CForm,CFormInput,CButton, CNav} from '@coreui/vue';
+import { ref, onMounted } from 'vue';
+import router from '@/router';
+const scheduler = ref(false); // Default value
+const isLoggedin = ref(false);
+onMounted(() => {
+  // Get user data from cookies
+  const userDataString = document.cookie.replace(/(?:(?:^|.*;\s*)userData\s*=\s*([^;]*).*$)|^.*$/, '$1');
+  if (userDataString) {
+    if (userDataString != "undefined") {
+      isLoggedin.value = true;
+    }
+    else {
+        router.push('/login')
 
+    }
+    const userData = JSON.parse(decodeURIComponent(userDataString));
+    scheduler.value = userData.isAdmin || false;
+  }
+  else {
+    router.push('/login')
+
+  }
+});
 </script>
 <template>
   <CNavbar expand="sm" color-scheme="dark" class="bg-dark" placement="fixed-top">
@@ -27,10 +49,10 @@ import  {CNavbar, CContainer, CNavbarBrand, CNavbarToggler, CCollapse,CNavbarNav
         </CNavItem>        
       </CNavbarNav>
       <CNavbarNav class="ms-auto">
-        <CNavItem v-if="!loggedin">
+        <CNavItem v-if="!isLoggedin">
           <CNavLink href="/login">Login</CNavLink>
         </CNavItem>
-        <CNavItem v-if="loggedin">
+        <CNavItem v-if="isLoggedin">
           <CNavLink href="/logout">Logout</CNavLink>
         </CNavItem>
       </CNavbarNav>
@@ -42,14 +64,7 @@ import  {CNavbar, CContainer, CNavbarBrand, CNavbarToggler, CCollapse,CNavbarNav
 
 
 <script lang="ts">
-export default {
-    data() {
-        return {
-          scheduler: true,
-          loggedin: false,
-        };
-    }
-};
+
 </script>
 <style scoped>
     

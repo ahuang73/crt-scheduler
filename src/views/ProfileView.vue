@@ -58,7 +58,6 @@ const shift_types = ref<ShiftType[]>();
 const shiftData = ref<Shift[]>();
 const upcomingShifts = ref<Shift[]>();
 const pastShifts = ref<Shift[]>();
-const username = "ahuang"
 const user = ref<User>();
 const formatDate = (dateString: string | undefined): string => {
     if (!dateString) return '';
@@ -72,7 +71,7 @@ const formatDate = (dateString: string | undefined): string => {
 };
 try {
     const userDataString = document.cookie.replace(/(?:(?:^|.*;\s*)userData\s*=\s*([^;]*).*$)|^.*$/, '$1');
-
+    
     if (userDataString) {
         const decodedUserData = decodeURIComponent(userDataString);
         const jsonUser = JSON.parse(decodedUserData);
