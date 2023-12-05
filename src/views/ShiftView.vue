@@ -69,15 +69,15 @@ import { CButton, CTable, CProgress, CProgressBar } from '@coreui/vue';
                         <td>{{ shift.Location }}</td>
                         <td>{{ shift.Start }}</td>
                         <td>{{ shift.End }}</td>
-                        <td v-if="shift.Primary === '' && currentResponder[0].Position == 'Primary'" class="text-start">
-                            <CButton @click="takeShift(shift)" class="text-start">Take Shift</CButton>
+                        <td v-if="shift.Primary === '' && currentResponder[0].Position == 'Primary' && showCurrentShifts" class="text-start">
+                            <CButton @click="takeShift(shift)" class="text-start" color="secondary">Take Shift</CButton>
                         </td>
                         <td v-else>{{ shift.Primary }}</td>
-                        <td v-if="shift.Secondary === '' && currentResponder[0].Position == 'Secondary'" class="text-start">
+                        <td v-if="shift.Secondary === '' && currentResponder[0].Position == 'Secondary' && showCurrentShifts" color="secondary" class="text-start">
                             <CButton @click="takeShift(shift)" class="text-start">Take Shift</CButton>
                         </td>
                         <td v-else>{{ shift.Secondary }}</td>
-                        <td v-if="shift.Rookie === '' && currentResponder[0].Position == 'Rookie'" class="text-start">
+                        <td v-if="shift.Rookie === '' && currentResponder[0].Position == 'Rookie' && showCurrentShifts" color="secondary" class="text-start">
                             <CButton @click="takeShift(shift)" class="text-start">Take Shift</CButton>
                         </td>
                         <td>{{ shift.Type }}</td>

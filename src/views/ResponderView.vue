@@ -38,13 +38,13 @@ import { onMounted, ref } from 'vue';
           <td>{{ responder.CertExpiration }}</td>
           <td>{{ responder.Position }}</td>
           <td>
-            <button @click="handleSuspendedButtonClick(responder)">Suspended</button>
+            <CButton @click="handleSuspendedButtonClick(responder)" color="secondary" >Suspend</CButton>
           </td>
           <td>
-            <button @click="handleAdminButtonClick(responder)">Admin</button>
+            <CButton @click="handleAdminButtonClick(responder)" color="secondary">Make Admin</CButton>
           </td>
           <td>
-            <button @click="handleDeleteButtonClick(responder)">Delete</button>
+            <CButton @click="handleDeleteButtonClick(responder)" color="secondary">Delete</CButton>
           </td>
         </tr>
       </tbody>
