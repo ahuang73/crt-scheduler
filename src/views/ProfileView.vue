@@ -32,9 +32,9 @@ import router from '@/router';
     </div>
 
     <div v-for="shiftType in shift_types">
-        <h6>{{ `${shiftType.Name}: ${responder[0][shiftType.Name]}/${shiftType.SecondaryReq}` }}</h6>
+        <h6>{{ `${shiftType.Name}: ${pastShiftsHoursByType[shiftType.Name]}/${shiftType.SecondaryReq}` }}</h6>
         <CProgress class="mb-3">
-            <CProgressBar :value="(responder[0][shiftType.Name] / shiftType.SecondaryReq) * 100" />
+            <CProgressBar :value="(pastShiftsHoursByType[shiftType.Name] / shiftType.SecondaryReq) * 100" />
         </CProgress>
 
 
@@ -59,6 +59,7 @@ const shiftData = ref<Shift[]>();
 const upcomingShifts = ref<Shift[]>();
 const pastShifts = ref<Shift[]>();
 const user = ref<User>();
+const pastShiftsHoursByType = ref();
 const formatDate = (dateString: string | undefined): string => {
     if (!dateString) return '';
 
@@ -71,7 +72,7 @@ const formatDate = (dateString: string | undefined): string => {
 };
 try {
     const userDataString = document.cookie.replace(/(?:(?:^|.*;\s*)userData\s*=\s*([^;]*).*$)|^.*$/, '$1');
-    
+
     if (userDataString) {
         const decodedUserData = decodeURIComponent(userDataString);
         const jsonUser = JSON.parse(decodedUserData);
@@ -108,6 +109,22 @@ try {
             return shiftDate < new Date();
         });
 
+        pastShiftsHoursByType.value = pastShifts.value.reduce((acc, shift: Shift) => {
+            const shiftType = shift.Type;
+            const startTime = shift.Start.split(':');
+            const endTime = shift.End.split(':');
+            const shiftHours = (parseInt(endTime[0]) + parseInt(endTime[1]) / 60) - (parseInt(startTime[0]) + parseInt(startTime[1]) / 60);
+
+            acc[shiftType] = (acc[shiftType] || 0) + shiftHours;
+            return acc;
+        }, {});
+        console.log(pastShiftsHoursByType.value)
+        shift_types.value.forEach((shiftType) => {
+            if (!(shiftType.Name in pastShiftsHoursByType.value)) {
+                pastShiftsHoursByType.value[shiftType.Name] = 0;
+            }
+        });
+        console.log(pastShiftsHoursByType.value)
     } else {
         router.push('/login')
     }
