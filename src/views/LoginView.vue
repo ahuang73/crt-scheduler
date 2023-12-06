@@ -4,7 +4,7 @@ import { CButton } from '@coreui/vue';
 <template>
   <div class="login-page">
     <h1 class="page-title">Campus Response Team</h1>
-    <p class="page-description">Hello Responder. Sign in to access your account.</p>
+    <p class="page-description">Sign in to access your account.</p>
     <CButton @click="redirectToLogin" color="primary" class="sign-in-button">Sign In</CButton>
   </div>
 </template>

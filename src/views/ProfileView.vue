@@ -98,14 +98,13 @@ try {
         upcomingShifts.value = shiftData.value.filter((shift: Shift) => {
             const [day, month, year] = shift.Date.split('-');
             const shiftDate = new Date(`${year}-${month}-${day}`);
-            console.log('Shift Date:', shift.Date, 'Parsed Date:', shiftDate);
+
             return shiftDate >= new Date();
         });
 
         pastShifts.value = shiftData.value.filter((shift: Shift) => {
             const [day, month, year] = shift.Date.split('-');
             const shiftDate = new Date(`${year}-${month}-${day}`);
-            console.log('Shift Date:', shift.Date, 'Parsed Date:', shiftDate);
             return shiftDate < new Date();
         });
 

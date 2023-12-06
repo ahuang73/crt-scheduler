@@ -69,15 +69,18 @@ import { CButton, CTable, CProgress, CProgressBar } from '@coreui/vue';
                         <td>{{ shift.Location }}</td>
                         <td>{{ shift.Start }}</td>
                         <td>{{ shift.End }}</td>
-                        <td v-if="shift.Primary === '' && currentResponder[0].Position == 'Primary' && showCurrentShifts" class="text-start">
+                        <td v-if="shift.Primary === '' && currentResponder[0].Position == 'Primary' && showCurrentShifts"
+                            class="text-start">
                             <CButton @click="takeShift(shift)" class="text-start" color="secondary">Take Shift</CButton>
                         </td>
                         <td v-else>{{ shift.Primary }}</td>
-                        <td v-if="shift.Secondary === '' && currentResponder[0].Position == 'Secondary' && showCurrentShifts" color="secondary" class="text-start">
+                        <td v-if="shift.Secondary === '' && currentResponder[0].Position == 'Secondary' && showCurrentShifts"
+                            color="secondary" class="text-start">
                             <CButton @click="takeShift(shift)" class="text-start">Take Shift</CButton>
                         </td>
                         <td v-else>{{ shift.Secondary }}</td>
-                        <td v-if="shift.Rookie === '' && currentResponder[0].Position == 'Rookie' && showCurrentShifts" color="secondary" class="text-start">
+                        <td v-if="shift.Rookie === '' && currentResponder[0].Position == 'Rookie' && showCurrentShifts"
+                            color="secondary" class="text-start">
                             <CButton @click="takeShift(shift)" class="text-start">Take Shift</CButton>
                         </td>
                         <td>{{ shift.Type }}</td>
@@ -99,7 +102,7 @@ import router from '@/router';
 
 const currentResponder = ref<Responder[]>([]);
 const currentUsername = 'ahuang';
-const shifts_data = ref([]);
+const shifts_data = ref<Shift>();
 const scheduler = ref();
 const logged_in = ref();
 const user = ref<User>();
@@ -118,16 +121,20 @@ try {
     if (userDataString) {
         const decodedUserData = decodeURIComponent(userDataString);
         const jsonUser = JSON.parse(decodedUserData);
-        user.value = jsonUser;   
-        
+        user.value = jsonUser;
+
         const uname = user.value.username;
         scheduler.value = user.value.isAdmin;
         const response = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shiftsdata`);
         shifts_data.value = response.data;
 
+        
+        console.log(shifts_data.value)
+
         const responderResponse = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/responderdata/user/` + uname);
         currentResponder.value = responderResponse.data;
-        
+        console.log(currentResponder.value[0]["Supervisor"])
+
     } else {
         router.push('/login')
 
@@ -163,26 +170,23 @@ export default {
     methods: {
         async takeShift(shift: Shift) {
             try {
-                // Perform the logic for taking the shift here
-                // For example, you can make an API call to update the shift status or perform any necessary actions.
-                // Assuming you have an API endpoint for taking shifts, modify the URL accordingly.
+               
                 const updatedShift = {
                     ...shift,
-                    [currentResponder.value[0].Position]: currentResponder.value[0].Name, // Replace 'John Doe' with the actual name or value
-                    // Update other fields if needed
+                    [currentResponder.value[0].Position]: currentResponder.value[0].Name, 
+
                 };
                 const response = await axios.post(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shiftsdata/update/${shift._id}`, updatedShift);
 
                 const updatedResponder = {
                     ...currentResponder.value[0],
-                    [currentResponder.value[0][shift.Type]]: [currentResponder.value[0][shift.Type]] + 1
-                    // Update other fields if needed
+                    [shift.Type]: currentResponder.value[0][shift.Type] + shift.TotalHours,
+
                 };
 
                 console.log(currentResponder);
-                // Handle the response or update the UI as needed
-
-                console.log('Shift taken successfully:', response.data);
+                const response2 = await axios.post(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/responderdata/update/${currentResponder.value[0].Username}`, updatedResponder);
+                
             } catch (error) {
                 console.error('Error taking shift:', error);
             }
@@ -190,7 +194,7 @@ export default {
     },
     data: () => {
         return {
-            
+
             columns: [
                 {
                     key: "Date",

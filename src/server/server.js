@@ -61,6 +61,15 @@ async function fetchOidcConfiguration() {
     throw error;
   }
 }
+function parseDateString(dateString) {
+  // Assuming date format is "day-month-year"
+  const [day, month, year] = dateString.split('-');
+  return {
+    day: parseInt(day, 10),
+    month: parseInt(month, 10),
+    year: parseInt(year, 10),
+  };
+}
 function parseJwt (token) {
   return JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
 }
@@ -283,7 +292,37 @@ app.post('/api/shiftsdata/update/:id', async (req, res) => {
     client.close();
   }
 });
+app.delete('/api/shiftsdata/deleteBefore/:dateString', async (req, res) => {
+  try {
+    await client.connect();
 
+    const db = client.db(dbName);
+    const collection = db.collection('shifts');
+
+    const dateString = req.params.dateString;
+    const { day: dayToDelete, month: monthToDelete, year: yearToDelete } = parseDateString(dateString);
+
+    const allShifts = await collection.find({}).toArray();
+    const shiftsToDelete = allShifts.filter(shift => {
+      const { day, month, year } = parseDateString(shift.Date);
+      return year < yearToDelete || (year === yearToDelete && (month < monthToDelete || (month === monthToDelete && day < dayToDelete)));
+    });
+    const shiftIdsToDelete = shiftsToDelete.map(shift => shift._id);
+    const result = await collection.deleteMany({ _id: { $in: shiftIdsToDelete } });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: 'No shifts found before the specified date' });
+    }
+
+    res.json({ success: true });
+    console.log("Shifts deleted before the specified date");
+  } catch (error) {
+    console.error('Error deleting shifts:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  } finally {
+    client.close();
+  }
+});
 
 
 app.get('/api/shifttypedata', async (req, res) => {
@@ -410,27 +449,27 @@ app.get('/api/responderdata/user/:username', async (req, res) => {
     client.close();
   }
 });
-// app.post('/api/responderdata/update/user/:username', async (req, res) => {
-//   try {
-//     await client.connect();
+app.post('/api/responderdata/update/user/:username', async (req, res) => {
+  try {
+    await client.connect();
 
-//     const db = client.db(dbName);
-//     const collection = db.collection("responders");
+    const db = client.db(dbName);
+    const collection = db.collection("responders");
 
-//     const username = req.params.username;
+    const username = req.params.username;
 
-//     // Fetch responders with the specified position
-//     const responders = await collection.updateOne({ Username: username }).toArray();
+    // Fetch responders with the specified position
+    const responders = await collection.updateOne({ Username: username }).toArray();
 
-//     res.json(responders);
-//     console.log(`Responders with username ${username} retrieved`);
-//   } catch (error) {
-//     console.error('Error fetching responders:', error);
-//     res.status(500).json({ error: 'Internal Server Error' });
-//   } finally {
-//     client.close();
-//   }
-// });
+    res.json(responders);
+    console.log(`Responders with username ${username} retrieved`);
+  } catch (error) {
+    console.error('Error fetching responders:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  } finally {
+    client.close();
+  }
+});
 
 app.delete('/api/shifttypedata/delete/:id', async (req, res) => {
   try {
@@ -458,7 +497,9 @@ app.delete('/api/shifttypedata/delete/:id', async (req, res) => {
   }
 });
 
+
 server.listen(process.env.PORT||3000, process.env.HOST||'localhost', ()=>{
   console.log(`Server is running on port ${process.env.PORT||3000}`);
   console.log(`login url: http://${process.env.HOST}:${process.env.PORT}/oauth2/login`)
 })
+

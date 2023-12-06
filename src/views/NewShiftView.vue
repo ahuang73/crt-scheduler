@@ -147,6 +147,7 @@ export default {
                 Rookie: "Rookie",
                 Type: "Select",
                 Description: "",
+                TotalHours:0.0,
 
             },
             tempData: {
@@ -168,7 +169,7 @@ export default {
                 this.formData.Date = tempStart.getDate() + '-' + (tempStart.getMonth() + 1) + '-' + tempStart.getFullYear()
                 this.formData.Start = tempStart.getHours() + ':' + tempStart.getMinutes()
                 this.formData.End = tempEnd.getHours() + ':' + tempEnd.getMinutes()
-
+                this.formData.TotalHours= tempEnd.getHours()-tempStart.getHours() + (tempEnd.getMinutes()-tempStart.getMinutes())/60.0
                 if(this.formData.Primary == "Primary"){
                     this.formData.Primary = ""
                 }
@@ -179,7 +180,7 @@ export default {
                     this.formData.Rookie = ""
                 }
                 // Send formData to your backend API to save in MongoDB
-                const response = await axios.post('${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shiftsdata', this.formData);
+                const response = await axios.post(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shiftsdata`, this.formData);
                 console.log('Shift created:', response.data, this.formData, this.tempData);
 
                 this.$router.push('/shifts')
@@ -208,6 +209,7 @@ export default {
                 Rookie: "",
                 Type: "",
                 Description: "",
+                TotalHours:"",
 
             };
 

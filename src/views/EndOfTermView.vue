@@ -2,12 +2,14 @@
 import { CForm, CButton } from '@coreui/vue';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
+import { ref } from 'vue';
+import axios from 'axios';
 </script>
 
 <template>
     <div class="well">
         <h1>End of Term</h1>
-        <p>Warning, make sure that you have finished your end of term report before you reset RMS for the end of the term
+        <p>Warning, make sure that you have finished your end of term report before you reset for the end of the term
         </p>
         <p>The following will take place...
         </p>
@@ -22,18 +24,42 @@ import '@vuepic/vue-datepicker/dist/main.css';
             </div>
         </CForm>
 
-        <CButton color="danger" value="new_shift">Reset</CButton>
+        <CButton color="danger" @click="resetDB">Reset</CButton>
 
     </div>
 </template>
 <script lang="ts">
+const date = ref(new Date());
+const formatDate = (date:Date) => {
+  const day = date.getDate();
+  const month = date.getMonth() + 1;
+  const year = date.getFullYear();
+
+  // Format as day-month-year
+  return `${day}-${month}-${year}`;
+};
+const resetDB = async () => {
+  const confirmed = window.confirm('Are you sure you want to reset RMS? This action cannot be undone.');
+  
+  if (confirmed) {
+    try {
+      const formattedDate = formatDate(date.value);
+
+      // Make a DELETE request to your server's endpoint
+      const response = await axios.delete(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shiftsdata/deleteBefore/${formattedDate}`);
+      // console.log(formattedDate);
+      // Handle the response as needed
+      console.log('Response:', response.data);
+
+      // You can update the UI or show a success message here
+    } catch (error) {
+      console.error('Error resetting:', error);
+      // Handle the error, show an error message, etc.
+    }
+  }
+};
 export default {
   components: { VueDatePicker },
-  data() {
-    return {
-      date: null,
-    };
-  }
 }
 </script>
 
