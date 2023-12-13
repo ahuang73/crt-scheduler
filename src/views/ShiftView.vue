@@ -69,19 +69,19 @@ import { CButton, CTable, CProgress, CProgressBar } from '@coreui/vue';
                         <td>{{ shift.Location }}</td>
                         <td>{{ shift.Start }}</td>
                         <td>{{ shift.End }}</td>
-                        <td v-if="shift.Primary === '' && currentResponder[0].Position == 'Primary' && showCurrentShifts"
+                        <td v-if="shift.Primary === '' && (currentResponder.Position == 'Primary'||isShiftCritical(shift)) && showCurrentShifts"
                             class="text-start">
-                            <CButton @click="takeShift(shift)" class="text-start" color="secondary">Take Shift</CButton>
+                            <CButton @click="takeShift(shift, 'Primary')" class="text-start">Take Shift</CButton>
                         </td>
                         <td v-else>{{ shift.Primary }}</td>
-                        <td v-if="shift.Secondary === '' && currentResponder[0].Position == 'Secondary' && showCurrentShifts"
+                        <td v-if="shift.Secondary === '' && (currentResponder.Position == 'Secondary'||isShiftCritical(shift)) && showCurrentShifts"
                             color="secondary" class="text-start">
-                            <CButton @click="takeShift(shift)" class="text-start">Take Shift</CButton>
+                            <CButton @click="takeShift(shift, 'Secondary')" class="text-start">Take Shift</CButton>
                         </td>
                         <td v-else>{{ shift.Secondary }}</td>
-                        <td v-if="shift.Rookie === '' && currentResponder[0].Position == 'Rookie' && showCurrentShifts"
+                        <td v-if="shift.Rookie === '' && (currentResponder.Position == 'Rookie'||isShiftCritical(shift)) && showCurrentShifts"
                             color="secondary" class="text-start">
-                            <CButton @click="takeShift(shift)" class="text-start">Take Shift</CButton>
+                            <CButton @click="takeShift(shift, 'Rookie')" class="text-start">Take Shift</CButton>
                         </td>
                         <td>{{ shift.Type }}</td>
                     </tr>
@@ -96,15 +96,14 @@ import { CButton, CTable, CProgress, CProgressBar } from '@coreui/vue';
 <script lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
-import { Responder, Shift, User } from '@/Classes';
+import { Responder, Shift, ShiftType, User } from '@/Classes';
 import router from '@/router';
 
 
-const currentResponder = ref<Responder[]>([]);
-const currentUsername = 'ahuang';
+const currentResponder = ref<Responder>();
+const shiftTypes = ref<ShiftType[]>();
 const shifts_data = ref<Shift>();
 const scheduler = ref();
-const logged_in = ref();
 const user = ref<User>();
 const showCurrentShifts = ref(true);
 const showAllShifts = () => {
@@ -115,7 +114,28 @@ const showCurrShifts = () => {
     showCurrentShifts.value = true;
 };
 
+const isShiftCritical = (shift: Shift) => {
+    const [day, month, year] = shift.Date.split('-').map(Number);
+    const [hour, minute] = shift.Start.split(':').map(Number);
+    const shiftDate = new Date(year, month - 1, day, hour, minute);
+    const today = new Date();
+    const diffTime = shiftDate.getTime() - today.getTime();
+    
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    let criticalTime = 0;
+    for (let i = 0; i < shiftTypes.value.length; i++)
+    {
+        if (shiftTypes.value[i].Name == shift.Type) {
+            criticalTime = parseInt(shiftTypes.value[i].CriticalTime);
+            return diffDays <= criticalTime;
+        }
+        
+    }
+    return false;
 
+   
+   
+};
 try {
     const userDataString = document.cookie.replace(/(?:(?:^|.*;\s*)userData\s*=\s*([^;]*).*$)|^.*$/, '$1');
     if (userDataString) {
@@ -127,13 +147,12 @@ try {
         scheduler.value = user.value.isAdmin;
         const response = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shiftsdata`);
         shifts_data.value = response.data;
-
-        
-        console.log(shifts_data.value)
-
         const responderResponse = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/responderdata/user/` + uname);
-        currentResponder.value = responderResponse.data;
-        console.log(currentResponder.value[0]["Supervisor"])
+        currentResponder.value = new Responder(responderResponse.data[0]);
+        const shiftTypeResponse = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shifttypedata`);
+        shiftTypes.value = shiftTypeResponse.data.map((shiftType: any) => new ShiftType(shiftType));
+        console.log(shiftTypes.value)
+
 
     } else {
         router.push('/login')
@@ -168,25 +187,30 @@ const filteredShifts = computed(() => {
 
 export default {
     methods: {
-        async takeShift(shift: Shift) {
+        async takeShift(shift: Shift, position:"Primary"|"Secondary"|"Rookie") {
             try {
-               
-                const updatedShift = {
-                    ...shift,
-                    [currentResponder.value[0].Position]: currentResponder.value[0].Name, 
+                if (currentResponder.value?.getCertExpiration() < 0) {
+                    alert("Your certs are expired. You are unable to take shifts until they are renewed.")
+                }
+                else {
+                    const updatedShift = {
+                        ...shift,
+                        [position]: currentResponder.value.Name,
 
-                };
-                const response = await axios.post(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shiftsdata/update/${shift._id}`, updatedShift);
+                    };
+                    const response = await axios.post(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shiftsdata/update/${shift._id}`, updatedShift);
 
-                const updatedResponder = {
-                    ...currentResponder.value[0],
-                    [shift.Type]: currentResponder.value[0][shift.Type] + shift.TotalHours,
+                    const updatedResponder = {
+                        ...currentResponder.value,
+                        [shift.Type]: currentResponder.value[shift.Type] + shift.TotalHours,
 
-                };
+                    };
 
-                console.log(currentResponder);
-                const response2 = await axios.post(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/responderdata/update/${currentResponder.value[0].Username}`, updatedResponder);
-                
+                    console.log(currentResponder);
+                    const response2 = await axios.post(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/responderdata/update/${currentResponder.value.Username}`, updatedResponder);
+                }
+
+
             } catch (error) {
                 console.error('Error taking shift:', error);
             }

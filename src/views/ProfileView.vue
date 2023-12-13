@@ -22,8 +22,8 @@ import router from '@/router';
                 <p>FR expiration date: {{ formatDate(responder.FRexpiry) }}</p>
                 <p>
                 </p>
-                <p>Based on your expiration dates, you will not be able to take shifts after {{ `${certExpiration}`}}
-                </p>
+                <p v-if="certExpiration >= 0">Based on your expiration dates, you will not be able to take shifts after {{ `${certExpiration} days`}}</p>
+                <p v-if="certExpiration < 0">Based on your expiration dates, you cannot take shifts</p>
                 <p>Contact the Directors of Administration and Scheduling if you have more recent certifications</p>
             </div>
         </div>
