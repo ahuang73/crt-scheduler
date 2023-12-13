@@ -43,12 +43,72 @@ import router from '@/router';
     <h1>Upcoming Shifts</h1>
     <p v-if="upcomingShifts?.length === 0">There are no upcoming shifts to display.</p>
     <div v-else>
-        <CTable :columns="columns" :items="upcomingShifts" />
+        <div class="shift-table">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Date</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Location</th>
+                        <th scope="col">Start Time</th>
+                        <th scope="col">End Time</th>
+                        <th scope="col">Primary</th>
+                        <th scope="col">Secondary</th>
+                        <th scope="col">Rookie</th>
+                        <th scope="col">Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="shift in upcomingShifts" :key="shift._id">
+                        <td>{{ shift.Date }}</td>
+                        <td>{{ shift.Name }}</td>
+                        <td>{{ shift.Location }}</td>
+                        <td>{{ shift.Start }}</td>
+                        <td>{{ shift.End }}</td>
+                        
+                        <td>{{ shift.Primary }}</td>
+                        <td>{{ shift.Secondary }}</td>
+                        <td>{{ shift.Rookie }}</td>
+                        <td>{{ shift.Type }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
     <h1>Past Shifts</h1>
     <p v-if="pastShifts?.length === 0">There are no past shifts to display.</p>
     <div v-else>
-        <CTable :columns="columns" :items="pastShifts" />
+        <div class="shift-table">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Date</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Location</th>
+                        <th scope="col">Start Time</th>
+                        <th scope="col">End Time</th>
+                        <th scope="col">Primary</th>
+                        <th scope="col">Secondary</th>
+                        <th scope="col">Rookie</th>
+                        <th scope="col">Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="shift in pastShifts" :key="shift._id">
+                        <td>{{ shift.Date }}</td>
+                        <td>{{ shift.Name }}</td>
+                        <td>{{ shift.Location }}</td>
+                        <td>{{ shift.Start }}</td>
+                        <td>{{ shift.End }}</td>
+                        
+                        <td>{{ shift.Primary }}</td>
+                        <td>{{ shift.Secondary }}</td>
+                        <td>{{ shift.Rookie }}</td>
+                        <td>{{ shift.Type }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </template>
 

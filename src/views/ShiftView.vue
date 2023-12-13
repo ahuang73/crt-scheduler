@@ -69,17 +69,17 @@ import { CButton, CTable, CProgress, CProgressBar } from '@coreui/vue';
                         <td>{{ shift.Location }}</td>
                         <td>{{ shift.Start }}</td>
                         <td>{{ shift.End }}</td>
-                        <td v-if="shift.Primary === '' && (currentResponder.Position == 'Primary'||isShiftCritical(shift)) && showCurrentShifts && notTakenByResponder(shift) "
+                        <td v-if="shift.Primary === '' && (currentResponder.Position == 'Primary'||isShiftCritical(shift)) && showCurrentShifts && notTakenByResponder(shift)&&currentResponder?.Position=='Primary'  "
                             class="text-start">
                             <CButton @click="takeShift(shift, 'Primary')" class="text-start">Take Shift</CButton>
                         </td>
                         <td v-else>{{ shift.Primary }}</td>
-                        <td v-if="shift.Secondary === '' && (currentResponder.Position == 'Secondary'||isShiftCritical(shift)) && showCurrentShifts && notTakenByResponder(shift)"
+                        <td v-if="shift.Secondary === '' && (currentResponder.Position == 'Secondary'||isShiftCritical(shift)) && showCurrentShifts && notTakenByResponder(shift)&&(currentResponder?.Position=='Primary'|| currentResponder?.Position=='Secondary' )"
                             color="secondary" class="text-start">
                             <CButton @click="takeShift(shift, 'Secondary')" class="text-start">Take Shift</CButton>
                         </td>
                         <td v-else>{{ shift.Secondary }}</td>
-                        <td v-if="shift.Rookie === '' && (currentResponder.Position == 'Rookie'||isShiftCritical(shift)) && showCurrentShifts && notTakenByResponder(shift)"
+                        <td v-if="shift.Rookie === '' && (currentResponder.Position == 'Rookie'||isShiftCritical(shift)) && showCurrentShifts && notTakenByResponder(shift)&&(currentResponder?.Position=='Primary'|| currentResponder?.Position=='Secondary' || currentResponder?.Position=='Rookie')"
                             color="secondary" class="text-start">
                             <CButton @click="takeShift(shift, 'Rookie')" class="text-start">Take Shift</CButton>
                         </td>
@@ -138,6 +138,7 @@ const isShiftCritical = (shift: Shift) => {
    
 };
 const notTakenByResponder = (shift:Shift)=>{
+    
     return !(shift.Primary == currentResponder.value.Name || shift.Secondary == currentResponder.value.Name || shift.Rookie == currentResponder.value.Name);  
 }
 try {
