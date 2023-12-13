@@ -22,6 +22,7 @@ export default {
             } catch (error) {
                 console.error('Error logging out:', error);
             }
+            window.location.href = '/';
         }
     }
 }

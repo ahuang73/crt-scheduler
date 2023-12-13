@@ -457,9 +457,29 @@ app.post('/api/responderdata/update/user/:username', async (req, res) => {
     const collection = db.collection("responders");
 
     const username = req.params.username;
+    const {_id, ...updatedParams} = req.body;
+    const responders = await collection.updateOne({ Username: username }, {$set: updatedParams} );
+    
+    res.json(responders);
+    console.log(`Responders with username ${username} retrieved`);
+  } catch (error) {
+    console.error('Error fetching responders:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  } finally {
+    client.close();
+  }
+});
+app.delete('/api/responderdata/delete/user/:username', async (req, res) => {
+  try {
+    await client.connect();
 
-    // Fetch responders with the specified position
-    const responders = await collection.updateOne({ Username: username }).toArray();
+    const db = client.db(dbName);
+    const collection = db.collection("responders");
+
+    const username = req.params.username;
+
+
+    const responders = await collection.deleteOne({ Username: username }).toArray();
 
     res.json(responders);
     console.log(`Responders with username ${username} retrieved`);
@@ -470,7 +490,6 @@ app.post('/api/responderdata/update/user/:username', async (req, res) => {
     client.close();
   }
 });
-
 app.delete('/api/shifttypedata/delete/:id', async (req, res) => {
   try {
     await client.connect();

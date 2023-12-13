@@ -45,7 +45,8 @@ export class Responder {
     BLSexpiry: Date;
     FRexpiry: Date;
     CertExpiration: string;
-
+    isAdmin: boolean;
+    isSuspended:boolean;
     constructor(data: any) {
         this._id = data._id;
         this.Username = data.Username;
@@ -60,6 +61,19 @@ export class Responder {
         this.BLSexpiry = new Date(data.BLSexpiry);
         this.FRexpiry = new Date(data.FRexpiry);
         this.CertExpiration = this.getCertExpiration()
+        if(data.isAdmin == undefined){
+            this.isAdmin = false;
+        }
+        else{
+            this.isAdmin = data.isAdmin;
+        }
+        if(data.isSuspended == undefined){
+            this.isSuspended = false;
+        }
+        else{
+            this.isSuspended = data.isSuspended;
+        }
+
     }
     getCertExpiration(): string {
         const dates: Date[] = [this.SFAexpiry, this.BLSexpiry, this.FRexpiry];

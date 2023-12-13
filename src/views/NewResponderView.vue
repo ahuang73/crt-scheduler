@@ -94,6 +94,8 @@ export default {
                 SFAexpiry: sfaexpiry,
                 BLSexpiry: blsexpiry,
                 FRexpiry: frexpiry,
+                isAdmin: false,
+                isSuspended: false,
             }
         };
     },
@@ -134,6 +136,8 @@ export default {
                 SFAexpiry: new Date(),
                 BLSexpiry: new Date(),
                 FRexpiry: new Date(),
+                isAdmin: false,
+                isSuspended: false,
             };
 
         }
