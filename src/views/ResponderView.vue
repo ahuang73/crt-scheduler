@@ -35,7 +35,7 @@ import { onMounted, ref } from 'vue';
       <tr v-for="responder in responders">
         <td>{{ responder.Name }}</td>
         <td v-for="name in shiftTypeColumns">{{ responder[name] }}</td>
-        <td>{{ responder.CertExpiration }}</td>
+        <td>{{ responder.certExpiration }}</td>
         <td>{{ responder.Position }}</td>
         <td>
           <CButton v-if="responder.isSuspended" @click="handleSuspendedButtonClick(responder)" color="secondary">Remove Suspension</CButton>

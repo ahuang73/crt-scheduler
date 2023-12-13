@@ -191,30 +191,28 @@ const filteredShifts = computed(() => {
 
 export default {
     methods: {
-        async takeShift(shift: Shift, position:"Primary"|"Secondary"|"Rookie") {
+        takeShift(shift: Shift, position: "Primary" | "Secondary" | "Rookie") {
             try {
                 if (currentResponder.value?.getCertExpiration() < 0) {
                     alert("Your certs are expired. You are unable to take shifts until they are renewed.")
-                }
-                else {
+                } else {
                     const updatedShift = {
                         ...shift,
                         [position]: currentResponder.value.Name,
-
                     };
-                    const response = await axios.post(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shiftsdata/update/${shift._id}`, updatedShift);
+                    const response = axios.post(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shiftsdata/update/${shift._id}`, updatedShift);
 
                     const updatedResponder = {
                         ...currentResponder.value,
                         [shift.Type]: currentResponder.value[shift.Type] + shift.TotalHours,
-
                     };
 
                     console.log(currentResponder);
-                    const response2 = await axios.post(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/responderdata/update/${currentResponder.value.Username}`, updatedResponder);
+                    const response2 = axios.post(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/responderdata/update/${currentResponder.value.Username}`, updatedResponder);
+                    window.location.reload();
+                    
+
                 }
-
-
             } catch (error) {
                 console.error('Error taking shift:', error);
             }
