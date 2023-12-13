@@ -127,9 +127,8 @@ try {
         obj[shiftTypeColumns.value[key2]] = 0;
       }
     }
-    if (!obj.hasOwnProperty('certExpiration')) {
-      obj.certExpiration = responder.getCertExpiration();
-    }
+    obj.certExpiration = responder.getCertExpiration();
+
     console.log(obj)
     return obj;
   });

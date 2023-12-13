@@ -10,20 +10,19 @@ import router from '@/router';
 <template>
     <div class="page-header">
         <h1>
-            {{ `${responder[0].Name} (${responder[0].Position})` }}
+            {{ `${responder.Name} (${responder.Position})` }}
 
         </h1>
 
         <div class="row">
             <div class="well well-small span-6">
                 <h4>Certifications</h4>
-                <p>SFA expiration date: {{ formatDate(responder[0].SFAexpiry) }}</p>
-                <p>BLS expiration date: {{ formatDate(responder[0].BLSexpiry) }}</p>
-                <p>FR expiration date: {{ formatDate(responder[0].FRexpiry) }}</p>
+                <p>SFA expiration date: {{ formatDate(responder.SFAexpiry) }}</p>
+                <p>BLS expiration date: {{ formatDate(responder.BLSexpiry) }}</p>
+                <p>FR expiration date: {{ formatDate(responder.FRexpiry) }}</p>
                 <p>
                 </p>
-                <p>Based on your expiration dates, you will not be able to take shifts after {{ responder[0].CertExpiration
-                }}
+                <p>Based on your expiration dates, you will not be able to take shifts after {{ `${certExpiration}`}}
                 </p>
                 <p>Contact the Directors of Administration and Scheduling if you have more recent certifications</p>
             </div>
@@ -54,7 +53,7 @@ import router from '@/router';
 </template>
 
 <script lang = "ts">
-const responder = ref<Responder[]>();
+const responder = ref<Responder>();
 const shift_types = ref<ShiftType[]>();
 const shiftData = ref<Shift[]>();
 const upcomingShifts = ref<Shift[]>();
@@ -62,6 +61,7 @@ const pastShifts = ref<Shift[]>();
 const user = ref<User>();
 const pastShiftsHoursByType = ref();
 const upcomingShiftsHoursByType =ref();
+const certExpiration = ref();
 const formatDate = (dateString: string | undefined): string => {
     if (!dateString) return '';
 
@@ -81,20 +81,20 @@ try {
         user.value = jsonUser;
         const uname = user.value.username;
         const response = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/responderdata/user/${uname}`);
-        responder.value = response.data;
+        responder.value = new Responder(response.data[0]);
 
         const shiftTypesResponse = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shifttypedata`);
         shift_types.value = shiftTypesResponse.data;
 
         for (let shiftType in shift_types.value) {
-            if (responder.value[0][shift_types.value[shiftType].Name] == undefined) {
-                responder.value[0][shift_types.value[shiftType].Name] = 0
+            if (responder.value[shift_types.value[shiftType].Name] == undefined) {
+                responder.value[shift_types.value[shiftType].Name] = 0
             }
 
 
         }
-        const responderName = responder.value[0].Name.replace(" ", "+")
-
+        const responderName = responder.value.Name.replace(" ", "+")
+        certExpiration.value = responder.value.getCertExpiration();
         const shiftTableResponse = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shiftsdata/responder/` + responderName);
         shiftData.value = shiftTableResponse.data;
 
