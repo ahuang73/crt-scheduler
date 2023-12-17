@@ -227,6 +227,21 @@ app.get('/api/shiftsdata', async (req, res) => {
   }
 });
 
+app.get('/api/shiftsdata/:id', async (req, res) => {
+  try {
+    await client.connect();
+
+    const db = client.db(dbName);
+    const collection = db.collection("shifts");
+    const shiftId = req.params.id;
+    console.log(shiftId)
+    const shifts = await collection.find({_id: new ObjectId(shiftId)}).toArray();
+    res.json(shifts);
+  } catch (error) {
+    console.error('Error fetching shifts:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 app.get('/api/shiftsdata/responder/:name', async (req, res) => {
   try {
     await client.connect();

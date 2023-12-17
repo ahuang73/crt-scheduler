@@ -87,6 +87,7 @@ export class Shift {
     public End: string;
     public Start: string;
     public TotalHours: number;
+    public Description: string;
 
     constructor(shiftData: {
         _id: string;
@@ -99,6 +100,7 @@ export class Shift {
         Type: string;
         End: string;
         Start: string;
+        Description: string;
     }) {
         this._id = shiftData._id;
         this.Date = shiftData.Date;
@@ -110,6 +112,7 @@ export class Shift {
         this.Type = shiftData.Type;
         this.End = shiftData.End;
         this.Start = shiftData.Start;
+        this.Description = shiftData.Description;
         const start = new Date(`1970-01-01T${this.Start}:00`);
         const end = new Date(`1970-01-01T${this.End}:00`);
        

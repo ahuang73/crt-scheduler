@@ -65,7 +65,12 @@ const router = createRouter({
       path:'/logout',
       name: 'Logout',
       component: () => import('../views/LogoutView.vue')
-    }
+    },
+    {
+      path: '/shifts/edit/:id',
+      name: 'EditShift',
+      component: ()=> import('../views/EditShiftView.vue'),
+    },
   ]
 })
 

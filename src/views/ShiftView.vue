@@ -85,6 +85,9 @@ import { CButton, CTable, CProgress, CProgressBar } from '@coreui/vue';
                         </td>
                         <td v-else>{{ shift.Rookie }}</td>
                         <td>{{ shift.Type }}</td>
+                        <td>
+                            <CButton v-if="scheduler" @click="$router.push('shifts/edit/' + shift._id)" color="secondary">Edit</CButton>
+                        </td>
                     </tr>
                 </tbody>
             </table>
