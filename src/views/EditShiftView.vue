@@ -22,7 +22,7 @@ const PrimaryOptions = ref([]);
 const SecondaryOptions = ref([]);
 const RookieOptions = ref([]);
 const user = ref<User>();
-
+const shiftId = ref();
 const shiftData = ref<Shift>();
 const formData = ref({
   Name: "",
@@ -43,8 +43,7 @@ const tempData = ref({
   Split: "",
 });
 
-const submitForm = async () => {
-  event?.preventDefault();
+const submitForm =  () => {
   try {
     let tempStart = tempData.value.Start;
     let tempEnd = tempData.value.End;
@@ -63,9 +62,13 @@ const submitForm = async () => {
       formData.value.Rookie = "";
     }
 
-    const response = await axios.post(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shiftsdata/update/${shiftId}`, formData.value);
+    const response = axios.post(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shiftsdata/update/${shiftId.value}`, formData.value);
 
     router.push('/shifts');
+   
+    setTimeout(() => {
+                    window.location.reload();
+                }, 10);
   } catch (error) {
     console.error('Error updating shift:', error);
   }
@@ -89,7 +92,7 @@ const resetForm = () => {
 
 onMounted(async () => {
   try {
-    const shiftId = window.location.pathname.split('/').pop();
+    shiftId.value = window.location.pathname.split('/').pop();
     console.log(shiftId);
 
     const userDataString = document.cookie.replace(/(?:(?:^|.*;\s*)userData\s*=\s*([^;]*).*$)|^.*$/, '$1');
@@ -117,7 +120,7 @@ onMounted(async () => {
     RookieOptions.value = rookies.data.map((rookie: any) => rookie.Name);
 
     // Fetch shift data based on the shift ID from the route params
-    const shiftResponse = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shiftsdata/${shiftId}`);
+    const shiftResponse = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shiftsdata/${shiftId.value}`);
     shiftData.value = new Shift(shiftResponse.data[0]);
 
     // Populate the formData with the fetched shift data
