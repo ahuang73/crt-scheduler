@@ -10,7 +10,6 @@ import axios from 'axios';
 
 export default {
     mounted() {
-        // Clear the authentication token from the cookie
         this.$cookies.remove('userData');
         this.redirectToLogout();
     },

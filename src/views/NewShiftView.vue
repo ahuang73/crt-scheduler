@@ -116,11 +116,9 @@ try {
     } else {
         router.push('/login')
     }
-    // Fetch shift_types data and set it in the formData.TypeOptions array
     const shiftTypesResponse = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shifttypedata`);
     TypeOptions.value = shiftTypesResponse.data.map((shiftType: any) => shiftType.Name);
 
-    // Fetch Responders data for Primary, Secondary, and Rookie dropdowns
     const primaries = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/responderdata/Primary`);
     PrimaryOptions.value = primaries.data.map((primary: any) => primary.Name);
     const secondaries = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/responderdata/Secondary`);
@@ -164,7 +162,6 @@ export default {
 
                 let tempStart = this.tempData.Start
                 let tempEnd = this.tempData.End
-                //Still need to handle start/end dates not being equal here
 
                 this.formData.Date = tempStart.getDate() + '-' + (tempStart.getMonth() + 1) + '-' + tempStart.getFullYear()
                 this.formData.Start = tempStart.getHours() + ':' + tempStart.getMinutes()
@@ -179,7 +176,7 @@ export default {
                 if(this.formData.Rookie == "Rookie"){
                     this.formData.Rookie = ""
                 }
-                // Send formData to your backend API to save in MongoDB
+
                 const response = await axios.post(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shiftsdata`, this.formData);
                 console.log('Shift created:', response.data, this.formData, this.tempData);
 
@@ -189,7 +186,6 @@ export default {
                 }, 10);
 
 
-                //this.resetForm();
             } catch (error) {
                 console.error('Error creating shift:', error);
             }
@@ -197,7 +193,6 @@ export default {
 
 
         resetForm() {
-            // Reset form fields to their initial state
             this.formData = {
                 Name: "",
                 Date: "",

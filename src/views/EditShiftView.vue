@@ -107,11 +107,10 @@ onMounted(async () => {
       router.push('/login');
     }
 
-    // Fetch shift_types data and set it in the formData.TypeOptions array
+    
     const shiftTypesResponse = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shifttypedata`);
     TypeOptions.value = shiftTypesResponse.data.map((shiftType: any) => shiftType.Name);
 
-    // Fetch Responders data for Primary, Secondary, and Rookie dropdowns
     const primaries = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/responderdata/Primary`);
     PrimaryOptions.value = primaries.data.map((primary: any) => primary.Name);
     const secondaries = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/responderdata/Secondary`);
@@ -119,11 +118,11 @@ onMounted(async () => {
     const rookies = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/responderdata/Rookie`);
     RookieOptions.value = rookies.data.map((rookie: any) => rookie.Name);
 
-    // Fetch shift data based on the shift ID from the route params
+
     const shiftResponse = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shiftsdata/${shiftId.value}`);
     shiftData.value = new Shift(shiftResponse.data[0]);
 
-    // Populate the formData with the fetched shift data
+
     formData.value = {
       Name: shiftData.value?.Name || "",
       Date: shiftData.value?.Date || "",

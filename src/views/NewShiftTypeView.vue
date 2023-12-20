@@ -62,7 +62,6 @@ export default {
         async submitForm() {
             event?.preventDefault();
             try {
-                // Send formData to your backend API to save in MongoDB
                 const response = await axios.post(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shifttypedata`, this.formData);
                 console.log('Shift Type Created:', response.data, this.formData);
 
@@ -71,8 +70,6 @@ export default {
                     window.location.reload();
                 }, 10);
 
-
-                //this.resetForm();
             } catch (error) {
                 console.error('Error creating shift:', error);
             }
@@ -80,7 +77,6 @@ export default {
 
 
         resetForm() {
-            // Reset form fields to their initial state
             this.formData = {
                 Name: "",
                 PrimaryReq:"",

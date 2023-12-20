@@ -61,14 +61,10 @@ const shiftTypes = ref([]);
 const columns = ref([]);
 const shiftTypeColumns = ref([]);
 const handleSuspendedButtonClick = async (responder: Responder) => {
-  // Handle button click for the "Suspended" column
   try {
     let newResponder:Responder = responder;
     newResponder.isSuspended = !newResponder.isSuspended;
-    // Use axios to send a request to suspend the responder
     const response = await axios.post(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/responderdata/update/user/${responder.Username}`, newResponder);
-
-    // Handle the response, update the UI, or show a notification if necessary
     console.log('Responder suspended successfully:', response.data);
   } catch (error) {
     console.error('Error suspending responder:', error);
@@ -88,12 +84,8 @@ const handleAdminButtonClick = async (responder: Responder) => {
 };
 
 const handleDeleteButtonClick = async (responder: Responder) => {
-  // Handle button click for the "Delete" column
   try {
-    // Use axios to send a request to delete the responder
     const response = await axios.delete(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/responderdata/delete/user/${responder.Username}`);
-
-    // Handle the response, update the UI, or show a notification if necessary
     console.log('Responder deleted successfully:', response.data);
   } catch (error) {
     console.error('Error deleting responder:', error);
@@ -102,7 +94,7 @@ const handleDeleteButtonClick = async (responder: Responder) => {
 try {
 
   const response = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/responderdata`);
-  let responderData = response.data.map((data: any) => new Responder(data)); // create a new Responder instance for each data
+  let responderData = response.data.map((data: any) => new Responder(data));
   const response2 = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shifttypedata`);
   shiftTypes.value = response2.data;
 

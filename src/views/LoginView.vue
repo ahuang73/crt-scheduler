@@ -28,19 +28,19 @@ export default {
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background-color: #f8f9fa; /* Set a light background color */
+  background-color: #f8f9fa;
 }
 
 .page-title {
   font-size: 2.5rem;
   margin-bottom: 10px;
-  color: #343a40; /* Set a dark text color */
+  color: #343a40;
 }
 
 .page-description {
   font-size: 1rem;
   margin-bottom: 30px;
-  color: #6c757d; /* Set a slightly lighter text color */
+  color: #6c757d;
 }
 
 

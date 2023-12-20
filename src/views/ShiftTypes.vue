@@ -61,12 +61,10 @@ try {
 }
 
 const handleNaughtyListEdit = (index: any) => {
-    // Handle edit of Naughty List
     console.log('Edit Naughty List for item:', shift_types.value[index]);
 };
 
 const handleDefaultEdit = (index: any) => {
-    // Handle edit of Default
     console.log('Make Default for item:', shift_types.value[index]);
 };
 
@@ -74,10 +72,7 @@ const handleDelete = async (index: any) => {
     try {
         const shiftTypeToDelete = shift_types.value[index];
         console.log('Deleting item:', shiftTypeToDelete)
-        // Assuming there's an endpoint for deleting, replace 'your_delete_endpoint' with the actual endpoint
         await axios.delete(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shifttypedata/delete/${shiftTypeToDelete._id}`);
-        
-        // Remove the deleted item from the local array
         shift_types.value.splice(index, 1);
         
         console.log('Deleted item:', shiftTypeToDelete);
