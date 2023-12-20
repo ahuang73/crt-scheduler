@@ -15,7 +15,7 @@ dotenv.config();
 const app = express()
 const port = process.env.PORT || 3000;
 const uri = process.env.MONGODB_URL;
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -34,7 +34,7 @@ app.use(cors());
 app.use(session({
   secret: process.env.CLIENT_SECRET||"PROVIDE_SECRET",
   resave: false,
-  cookie: {maxAge: 7*24*60*60*1000}, // Optionally add secure: true if https,
+  cookie: {maxAge: 7*24*60*60*1000},
   secure:false,
   saveUninitialized: true
 }))
@@ -62,7 +62,6 @@ async function fetchOidcConfiguration() {
   }
 }
 function parseDateString(dateString) {
-  // Assuming date format is "day-month-year"
   const [day, month, year] = dateString.split('-');
   return {
     day: parseInt(day, 10),
@@ -89,15 +88,12 @@ passport.use(new Strategy({
   cookieEncryptionKeys: [{ key: '12345678901234567890123456789012', 'iv': '123456789012' }], 
 },
   function (req, iss, sub, profile, accessToken, refreshToken, claims, done) {
-    // You'll probably want to do some work here
-    // You can pull out whatever you want from the profile here
     
     const decodedProfile = parseJwt(profile); 
     return done(null, decodedProfile);
   }
 ));
 app.get('/protected-route', (req, res) => {
-  // Access the claims from the user object
   const { username, name, email } = req.user._json;
 
   // Use the claims as needed
@@ -172,7 +168,6 @@ app.get('/oidc/session', restrict(), (req, res)=>{
 )
 
 app.get('/oauth/logout/', (req, res, next)=>{
-  // Logout is broken with azure-ad, so we just do it manually!
   if (req.session.passport) {
       delete req.session.passport.user;
   }
@@ -183,25 +178,20 @@ app.get('/oauth/logout/', (req, res, next)=>{
          return next(err)
       }
     
-      // regenerate the session, which is good practice to help
-      // guard against forms of session fixation
       req.session.regenerate(function(err) {
           if (err) {
               return next(err);
           }
-          // You may want to redirect somewhere here!!
           return res.status(200).json({'status': 'ok'})
       });
   });
 })
 function restrict(check){
-  // You can pass a check function here to add additional stuff!
   return function (req, res, next) {
       let cfn = check || function(){ return true }
       if (req.user && cfn(req, res)) {
           next();
       } else {
-          // Do whatever you want here -- I'm returing json
           res.status(403).json({error: 'not logged in, access denied!'})
       }
   }
@@ -362,20 +352,16 @@ app.post('/api/shifttypedata', async (req, res) => {
     const db = client.db(dbName);
     const collection = db.collection('shift_types');
 
-    // Extract shift data from the request body
     const shiftTypeData = req.body;
 
-    // Insert the shift data into the MongoDB collection
     const result = await collection.insertOne(shiftTypeData);
 
-    // Respond with the ID of the inserted document
     res.json({ _id: result.insertedId });
     console.log("Shift Type POST")
   } catch (error) {
     console.error('Error creating shift:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   } finally {
-    // Close the MongoDB connection
     client.close();
   }
 });
@@ -404,20 +390,20 @@ app.post('/api/responderdata', async (req, res) => {
     const db = client.db(dbName);
     const collection = db.collection('responders');
 
-    // Extract shift data from the request body
+
     const shiftTypeData = req.body;
 
-    // Insert the shift data into the MongoDB collection
+
     const result = await collection.insertOne(shiftTypeData);
 
-    // Respond with the ID of the inserted document
+
     res.json({ _id: result.insertedId });
     console.log("Responder POST")
   } catch (error) {
     console.error('Error creating shift:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   } finally {
-    // Close the MongoDB connection
+
     client.close();
   }
 });
@@ -431,7 +417,6 @@ app.get('/api/responderdata/:position', async (req, res) => {
 
     const position = req.params.position;
     console.log(position)
-    // Fetch responders with the specified position
     const responders = await collection.find({ Position: position }).toArray();
 
     res.json(responders);
@@ -452,7 +437,6 @@ app.get('/api/responderdata/user/:username', async (req, res) => {
 
     const username = req.params.username;
 
-    // Fetch responders with the specified position
     const responders = await collection.find({ Username: username }).toArray();
 
     res.json(responders);
