@@ -115,27 +115,24 @@ export class Shift {
         this.Description = shiftData.Description;
         const start = new Date(`1970-01-01T${this.Start}:00`);
         const end = new Date(`1970-01-01T${this.End}:00`);
-       
-        // Calculate the time difference in milliseconds
+
         const timeDifference = end.getTime() - start.getTime();
         
-        // Convert the time difference to hours
+
         const totalHours = timeDifference / (1000 * 60 * 60);
         this.TotalHours=totalHours;
     }
 
     public calculateTotalHours(startTime: string, endTime: string): number {
-        // Assuming startTime and endTime are in HH:mm format
+
         const start = new Date(`1970-01-01T${startTime}:00`);
         const end = new Date(`1970-01-01T${endTime}:00`);
-       
-        // Calculate the time difference in milliseconds
+
         const timeDifference = end.getTime() - start.getTime();
-        
-        // Convert the time difference to hours
+
         const totalHours = timeDifference / (1000 * 60 * 60);
         
-        // Return the total hours as a number
+
         return totalHours;
     }
 }
