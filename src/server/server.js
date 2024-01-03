@@ -167,7 +167,7 @@ app.get('/oidc/session', restrict(), (req, res)=>{
     
 )
 
-app.get('/oauth/logout/', (req, res, next)=>{
+app.get('/oauth/logout/',   (req, res, next)=>{
   if (req.session.passport) {
       delete req.session.passport.user;
   }
@@ -202,7 +202,7 @@ app.get('/restricted', restrict(), (req, res) => {
 
 
 
-app.get('/api/shiftsdata', async (req, res) => {
+app.get('/api/shiftsdata', restrict(), async (req, res) => {
   try {
     await client.connect();
 
@@ -217,7 +217,7 @@ app.get('/api/shiftsdata', async (req, res) => {
   }
 });
 
-app.get('/api/shiftsdata/:id', async (req, res) => {
+app.get('/api/shiftsdata/:id', restrict(), async (req, res) => {
   try {
     await client.connect();
 
@@ -232,7 +232,7 @@ app.get('/api/shiftsdata/:id', async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
-app.get('/api/shiftsdata/responder/:name', async (req, res) => {
+app.get('/api/shiftsdata/responder/:name', restrict(), async (req, res) => {
   try {
     await client.connect();
 
@@ -252,7 +252,7 @@ app.get('/api/shiftsdata/responder/:name', async (req, res) => {
   }
 });
 
-app.post('/api/shiftsdata', async (req, res) => {
+app.post('/api/shiftsdata', restrict(), async (req, res) => {
   try {
     await client.connect();
     const db = client.db(dbName);
@@ -274,7 +274,7 @@ app.post('/api/shiftsdata', async (req, res) => {
     client.close();
   }
 });
-app.post('/api/shiftsdata/update/:id', async (req, res) => {
+app.post('/api/shiftsdata/update/:id', restrict(), async (req, res) => {
   try {
     await client.connect();
     const db = client.db(dbName);
@@ -297,7 +297,7 @@ app.post('/api/shiftsdata/update/:id', async (req, res) => {
     client.close();
   }
 });
-app.delete('/api/shiftsdata/deleteBefore/:dateString', async (req, res) => {
+app.delete('/api/shiftsdata/deleteBefore/:dateString', restrict(), async (req, res) => {
   try {
     await client.connect();
 
@@ -330,7 +330,7 @@ app.delete('/api/shiftsdata/deleteBefore/:dateString', async (req, res) => {
 });
 
 
-app.get('/api/shifttypedata', async (req, res) => {
+app.get('/api/shifttypedata', restrict(), async (req, res) => {
   try {
     await client.connect();
 
@@ -346,7 +346,7 @@ app.get('/api/shifttypedata', async (req, res) => {
   }
 });
 
-app.post('/api/shifttypedata', async (req, res) => {
+app.post('/api/shifttypedata', restrict(), async (req, res) => {
   try {
     await client.connect();
     const db = client.db(dbName);
@@ -366,7 +366,7 @@ app.post('/api/shifttypedata', async (req, res) => {
   }
 });
 
-app.get('/api/responderdata', async (req, res) => {
+app.get('/api/responderdata', restrict(), async (req, res) => {
   try {
     await client.connect();
 
@@ -384,7 +384,7 @@ app.get('/api/responderdata', async (req, res) => {
 
 
 
-app.post('/api/responderdata', async (req, res) => {
+app.post('/api/responderdata',restrict(), async (req, res) => {
   try {
     await client.connect();
     const db = client.db(dbName);
@@ -408,7 +408,7 @@ app.post('/api/responderdata', async (req, res) => {
   }
 });
 
-app.get('/api/responderdata/:position', async (req, res) => {
+app.get('/api/responderdata/:position', restrict(), async (req, res) => {
   try {
     await client.connect();
 
@@ -428,7 +428,7 @@ app.get('/api/responderdata/:position', async (req, res) => {
     client.close();
   }
 });
-app.get('/api/responderdata/user/:username', async (req, res) => {
+app.get('/api/responderdata/user/:username', restrict(), async (req, res) => {
   try {
     await client.connect();
 
@@ -448,7 +448,7 @@ app.get('/api/responderdata/user/:username', async (req, res) => {
     client.close();
   }
 });
-app.post('/api/responderdata/update/user/:username', async (req, res) => {
+app.post('/api/responderdata/update/user/:username', restrict(), async (req, res) => {
   try {
     await client.connect();
 
@@ -468,7 +468,7 @@ app.post('/api/responderdata/update/user/:username', async (req, res) => {
     client.close();
   }
 });
-app.delete('/api/responderdata/delete/user/:username', async (req, res) => {
+app.delete('/api/responderdata/delete/user/:username', restrict(), async (req, res) => {
   try {
     await client.connect();
 
@@ -489,7 +489,7 @@ app.delete('/api/responderdata/delete/user/:username', async (req, res) => {
     client.close();
   }
 });
-app.delete('/api/shifttypedata/delete/:id', async (req, res) => {
+app.delete('/api/shifttypedata/delete/:id', restrict(), async (req, res) => {
   try {
     await client.connect();
 
