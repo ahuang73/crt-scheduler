@@ -7,7 +7,8 @@
     "build": "run-p type-check build-only",
     "preview": "vite preview",
     "build-only": "vite build",
-    "type-check": "vue-tsc --noEmit -p tsconfig.app.json --composite false"
+    "type-check": "vue-tsc --noEmit -p tsconfig.app.json --composite false",
+    "start": "node src/server/server.js" 
   },
   "dependencies": {
     "@coreui/coreui": "^4.2.6",
@@ -16,10 +17,17 @@
     "axios": "^1.5.1",
     "bootstrap": "^5.3.0",
     "bootstrap-vue": "^2.23.1",
+    "cookie-parser": "1.4",
+    "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "express-session": "1.17",
+    "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.1.0",
     "mongoose": "^7.5.2",
+    "passport": "^0.6.0",
+    "passport-azure-ad": "^4.3.5",
+    "passport-openidconnect": "^0.1.1",
     "vue": "^3.3.2",
     "vue-cookies": "^1.8.3",
     "vue-router": "^4.2.0",
@@ -34,5 +42,6 @@
     "typescript": "~5.0.4",
     "vite": "^4.3.5",
     "vue-tsc": "^1.6.4"
-  }
+  },
+  "type": "module"
 }
