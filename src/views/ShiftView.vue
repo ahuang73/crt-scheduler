@@ -145,6 +145,7 @@ const notTakenByResponder = (shift: Shift) => {
     return !(shift.Primary == currentResponder.value.Name || shift.Secondary == currentResponder.value.Name || shift.Rookie == currentResponder.value.Name);
 }
 try {
+    axios.defaults.withCredentials = true;
     const userDataString = document.cookie.replace(/(?:(?:^|.*;\s*)userData\s*=\s*([^;]*).*$)|^.*$/, '$1');
     if (userDataString) {
         const decodedUserData = decodeURIComponent(userDataString);

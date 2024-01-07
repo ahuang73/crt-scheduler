@@ -35,18 +35,20 @@ app.use(express.json());
 app.use(cors({
   origin: 'http://localhost:5173',
   credentials:true,
+  sameSite: 'none',
 }));
 
 app.use(session({
   secret: process.env.CLIENT_SECRET||"PROVIDE_SECRET",
   resave: false,
   cookie: {maxAge: 7*24*60*60*1000},
-  secure:false,
+  secure: true,
+  sameSite: 'none',
   saveUninitialized: true
 }))
 
-app.use(cookieParser());
-app.use(passport.authenticate('session'));
+app.use(cookieParser(process.env.CLIENT_SECRET));
+
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -101,7 +103,6 @@ passport.use(new Strategy({
   callbackURL: `${process.env.SERVER_LOGIN_REDIRECT}`,
   userInfoURL:oidcConfiguration.userinfo_endpoint,
   loggingLevel: 'debug',
-  useCookieInsteadOfSession: true,
   cookieEncryptionKeys: [{ key: '12345678901234567890123456789012', 'iv': '123456789012' }], 
 },
   async function (req, iss, sub, profile, accessToken, refreshToken, claims, done) {
@@ -135,8 +136,9 @@ passport.serializeUser(function (user, done) {
 });
 
 passport.deserializeUser(function (user, done) {
-  console.log("DESERIALZING USER: ", parseJwt(user))
-  done(null, parseJwt(user));
+  console.log("DESERIALIZATION**")
+  console.log("DESERIALZING USER: ", user)
+  done(null, user);
 });
 
 function regenerateSessionAfterAuthentication(req, res, next) {
@@ -167,35 +169,39 @@ app.get('/oidc/callback',
     }),
     regenerateSessionAfterAuthentication,
     async function (req, res) {
-        // const userinfo = parseJwt(req.session.passport.user);
-        // console.log('User Info from JWT:', userinfo);
+       
+        console.log("req.user in callback: ", req.session.passport.user.Username)
+        const username = req.session.passport.user.Username;
+      
 
-        // const username = userinfo.username;
-        // console.log('Username from JWT:', username);
+       
+        if (req.session.passport.user.isAdmin == undefined) {
+          req.session.passport.user.Username.isAdmin = false;
+        }
 
-        // await client.connect();
-        // const db = client.db(dbName);
-        // const collection = db.collection("responders");
-        // const responder = await collection.findOne({ Username: username });
+        const userData = {
+          username:  req.session.passport.user.Username,
+        };
+        const userDataString = JSON.stringify(userData);
+
+        console.log('User Data Cookie:', userDataString);
+       
+        req.session.customProperty = 'someValue';
+
+        req.session.user= req.session.passport.user;
+        req.logIn(req.session.passport.user, function(err) {
+            if (err) {
+               
+                return res.redirect(process.env.SERVER_LOGIN_REDIRECT);
+            }
+
+           
+            res.cookie('userData', userDataString,{sameSite: 'none', secure: true});
+            return res.redirect(process.env.FRONT_END_URL);
+            
+        });
         
-        // if (responder.isAdmin == undefined) {
-        //   responder.isAdmin = false;
-        // }
-
-        // const userData = {
-        //   username: userinfo.username,
-        //   email: userinfo.email, 
-        //   profile: userinfo.profile,
-        //   isAdmin: responder.isAdmin,
-        //   token: req.session.passport.user,
-        // };
-        // const userDataString = JSON.stringify(userData);
-
-        // // Debug logging
-        // console.log('Serialized User Data:', userDataString);
-
-        // res.cookie('userData', userDataString);
-        res.redirect(process.env.FRONT_END_URL);
+        
     }
 );
 app.get('/oidc/session', restrict(), (req, res)=>{
@@ -251,7 +257,8 @@ function restrict(check){
       let cfn = check || function(){ return true }
       console.log("REQUEST USER: " ,req.user)
       console.log("REQUEST SESSION: ", req.session)
-      if (req.user && cfn(req, res)) {
+      console.log ("REQUEST COOKIES", req.cookies)
+      if (req.cookies.userData && cfn(req, res)) {
           next();
       } else {
           res.status(403).json({error: 'not logged in, access denied!'})
