@@ -181,6 +181,8 @@ app.get('/oidc/callback',
 
         const userData = {
           username:  req.session.passport.user.Username,
+          name: req.session.passport.user.Name,
+          isAdmin: req.session.passport.user.isAdmin
         };
         const userDataString = JSON.stringify(userData);
 
