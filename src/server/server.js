@@ -26,7 +26,7 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   }
 });
-const dbName = "CRT-Data"
+const dbName = "CRTData"
 const key = fs.readFileSync(process.env.SSL_KEY_PATH);
 const cert = fs.readFileSync(process.env.SSL_CERT_PATH);
 
@@ -510,7 +510,7 @@ app.get('/api/responderdata/user/:username', restrict(), async (req, res) => {
     const username = req.params.username;
 
     const responders = await collection.find({ Username: username }).toArray();
-
+    console.log(responders)
     res.json(responders);
     console.log(`Responders with username ${username} retrieved`);
   } catch (error) {

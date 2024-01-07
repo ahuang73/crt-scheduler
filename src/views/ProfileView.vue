@@ -142,7 +142,9 @@ try {
         user.value = jsonUser;
         const uname = user.value.username;
         const response = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/responderdata/user/${uname}`);
+        
         responder.value = new Responder(response.data[0]);
+
 
         const shiftTypesResponse = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shifttypedata`);
         shift_types.value = shiftTypesResponse.data;
