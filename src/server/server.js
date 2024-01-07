@@ -10,6 +10,9 @@ import cors from 'cors';
 import https from 'https';
 import fs from 'fs';
 import axios from 'axios';
+import jwt from 'jsonwebtoken'
+import mongoose from 'mongoose';
+
 
 dotenv.config();
 const app = express()
@@ -29,7 +32,10 @@ const cert = fs.readFileSync(process.env.SSL_CERT_PATH);
 
 const server = https.createServer({key: key, cert: cert }, app);
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials:true,
+}));
 
 app.use(session({
   secret: process.env.CLIENT_SECRET||"PROVIDE_SECRET",
@@ -40,18 +46,26 @@ app.use(session({
 }))
 
 app.use(cookieParser());
-
+app.use(passport.authenticate('session'));
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  next();
-});
-
+// app.use((req, res, next) => {
+//   res.header('Access-Control-Allow-Origin', '*');
+//   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+//   res.header('Access-Control-Allow-Headers', 'Content-Type');
+//   res.header('Access-Control-Allow-Credentials', 'true');
+//   next();
+// });
+async function fetchJWKS(jwksUri) {
+  try {
+    const response = await axios.get(jwksUri);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching JWKS:', error);
+    throw error;
+  }
+}
 async function fetchOidcConfiguration() {
   try {
     const response = await axios.get(process.env.DISCOVERY_URL);
@@ -73,6 +87,9 @@ function parseJwt (token) {
   return JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
 }
 const oidcConfiguration = await fetchOidcConfiguration();
+const jwks = await fetchJWKS(oidcConfiguration.jwks_uri);
+
+
 passport.use(new Strategy({
   issuer: oidcConfiguration.issuer,
   authorizationURL: oidcConfiguration.authorization_endpoint,
@@ -87,14 +104,21 @@ passport.use(new Strategy({
   useCookieInsteadOfSession: true,
   cookieEncryptionKeys: [{ key: '12345678901234567890123456789012', 'iv': '123456789012' }], 
 },
-  function (req, iss, sub, profile, accessToken, refreshToken, claims, done) {
+  async function (req, iss, sub, profile, accessToken, refreshToken, claims, done) {
     
-    const decodedProfile = parseJwt(profile); 
-    return done(null, decodedProfile);
+    await client.connect();
+    const db = client.db(dbName);
+    const collection = db.collection("responders");
+    const decodedProfile = parseJwt(profile);
+    const username = decodedProfile.username;
+    const responder = await collection.findOne({ Username: username });
+    
+    console.log('OIDC Strategy - Authentication Successful:', responder);
+    return done(null, responder);
   }
 ));
 app.get('/protected-route', (req, res) => {
-  const { username, name, email } = req.user._json;
+  const { username, name, email } = req.user;
 
   // Use the claims as needed
   console.log('Username:', username);
@@ -105,13 +129,14 @@ app.get('/protected-route', (req, res) => {
   res.send('Protected route');
 });
 
-passport.serializeUser(function(user, done) {
+passport.serializeUser(function (user, done) {
+  console.log("SERIALZING USER: ", user)
   done(null, user);
 });
 
-passport.deserializeUser(function(user, done) {
-  // Also here
-  done(null, user);
+passport.deserializeUser(function (user, done) {
+  console.log("DESERIALZING USER: ", parseJwt(user))
+  done(null, parseJwt(user));
 });
 
 function regenerateSessionAfterAuthentication(req, res, next) {
@@ -138,29 +163,41 @@ app.get('/oidc/callback',
     passport.authenticate('openidconnect', { 
       failureRedirect: process.env.SERVER_LOGIN_REDIRECT, 
       prompt: 'login',
-      scope:['email','profile'],}),
+      scope:['email','profile'],
+    }),
     regenerateSessionAfterAuthentication,
     async function (req, res) {
-        const username = req.session.passport.user.username;
-        await client.connect();
-        const db = client.db(dbName);
-        const collection = db.collection("responders");
-        const responder = await collection.findOne({ Username: username });
-        if (responder.isAdmin == undefined){
-          responder.isAdmin = false;
-        }
-        const userData ={ 
-          username: req.session.passport.user.username,
-          email: req.session.passport.user.email, 
-          profile: req.session.passport.user.profile,
-          isAdmin: responder.isAdmin,
-        }
-        const userDataString = JSON.stringify(userData)
+        // const userinfo = parseJwt(req.session.passport.user);
+        // console.log('User Info from JWT:', userinfo);
 
-        res.cookie('userData', userDataString);
+        // const username = userinfo.username;
+        // console.log('Username from JWT:', username);
+
+        // await client.connect();
+        // const db = client.db(dbName);
+        // const collection = db.collection("responders");
+        // const responder = await collection.findOne({ Username: username });
+        
+        // if (responder.isAdmin == undefined) {
+        //   responder.isAdmin = false;
+        // }
+
+        // const userData = {
+        //   username: userinfo.username,
+        //   email: userinfo.email, 
+        //   profile: userinfo.profile,
+        //   isAdmin: responder.isAdmin,
+        //   token: req.session.passport.user,
+        // };
+        // const userDataString = JSON.stringify(userData);
+
+        // // Debug logging
+        // console.log('Serialized User Data:', userDataString);
+
+        // res.cookie('userData', userDataString);
         res.redirect(process.env.FRONT_END_URL);
     }
-)
+);
 app.get('/oidc/session', restrict(), (req, res)=>{
       res.json(req.session.passport.user);        
     }
@@ -186,9 +223,34 @@ app.get('/oauth/logout/',   (req, res, next)=>{
       });
   });
 })
+
+function verifyJwt(token, jwks) {
+  return new Promise((resolve, reject) => {
+    jwt.verify(token, (header, callback) => {
+      const kid = header.kid;
+      const key = jwks.keys.find((k) => k.kid === kid);
+
+      if (!key) {
+        reject(new Error('Unable to find matching key in JWKS'));
+      } else {
+        const signingKey = {
+          kid: key.kid,
+          kty: key.kty,
+          use: key.use,
+          n: key.n,
+          e: key.e,
+          alg: key.alg,
+        };
+        resolve(signingKey);
+      }
+    });
+  });
+}
 function restrict(check){
   return function (req, res, next) {
       let cfn = check || function(){ return true }
+      console.log("REQUEST USER: " ,req.user)
+      console.log("REQUEST SESSION: ", req.session)
       if (req.user && cfn(req, res)) {
           next();
       } else {
@@ -196,8 +258,9 @@ function restrict(check){
       }
   }
 }
+
 app.get('/restricted', restrict(), (req, res) => {
-  res.send(`Hello ${req.user.username}`)
+  res.send(`Hello ${req.user}, USERNAME: ${req.user.username}, EMAIL: ${req.user.email}`)
 })
 
 
