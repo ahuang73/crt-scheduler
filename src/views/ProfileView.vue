@@ -133,6 +133,7 @@ const formatDate = (dateString: string | undefined): string => {
     return `${year}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`;
 };
 try {
+    axios.defaults.withCredentials=true
     const userDataString = document.cookie.replace(/(?:(?:^|.*;\s*)userData\s*=\s*([^;]*).*$)|^.*$/, '$1');
 
     if (userDataString) {

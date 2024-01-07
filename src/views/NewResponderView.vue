@@ -103,6 +103,7 @@ export default {
         async submitForm() {
             event?.preventDefault()
             try {
+                axios.defaults.withCredentials=true
                 const response = await axios.post(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/responderdata`, this.formData);
                 console.log('Responder Created:', response.data, this.formData);
 

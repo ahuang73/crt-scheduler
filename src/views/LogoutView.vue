@@ -14,7 +14,9 @@ export default {
         this.redirectToLogout();
     },
     methods: {
+
         async redirectToLogout() {
+            
             const logoutUrl = `${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/oauth/logout`;
             try {
                 await axios.post(logoutUrl);

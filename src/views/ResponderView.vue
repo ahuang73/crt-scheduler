@@ -92,7 +92,7 @@ const handleDeleteButtonClick = async (responder: Responder) => {
   }
 };
 try {
-
+  axios.defaults.withCredentials=true;
   const response = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/responderdata`);
   let responderData = response.data.map((data: any) => new Responder(data));
   const response2 = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shifttypedata`);

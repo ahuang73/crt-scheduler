@@ -53,6 +53,7 @@ import { ShiftType } from '../Classes';
 <script lang="ts">
 const shift_types = ref<ShiftType[]>([]);
 try {
+    axios.defaults.withCredentials=true
     const response = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shifttypedata`);
     shift_types.value = response.data;
     console.log(shift_types.value)

@@ -14,6 +14,7 @@ import { CButton } from '@coreui/vue';
 export default {
   methods: {
     redirectToLogin() {
+      
       const loginUrl = `${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/oauth2/login`;
       window.location.href = loginUrl;
     }

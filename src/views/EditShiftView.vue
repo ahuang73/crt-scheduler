@@ -92,6 +92,7 @@ const resetForm = () => {
 
 onMounted(async () => {
   try {
+    axios.defaults.withCredentials=true
     shiftId.value = window.location.pathname.split('/').pop();
     console.log(shiftId);
 
