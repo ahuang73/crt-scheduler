@@ -19,7 +19,7 @@ export default {
             
             const logoutUrl = `${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/oauth/logout`;
             try {
-                await axios.post(logoutUrl);
+                await axios.get(logoutUrl);
             } catch (error) {
                 console.error('Error logging out:', error);
             }
