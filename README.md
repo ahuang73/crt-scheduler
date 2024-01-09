@@ -1,40 +1,49 @@
 # crt-scheduler
+# Campus Response Team Scheduler App
 
-This template should help get you started developing with Vue 3 in Vite.
 
-## Recommended IDE Setup
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+## Table of Contents
 
-## Type Support for `.vue` Imports in TS
+- [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
 
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
+## Getting Started
 
-1. Disable the built-in TypeScript Extension
-    1) Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-    2) Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
+### Prerequisites
 
-## Customize configuration
+- Node.js and npm installed
+- MongoDB database (local or cloud-based)
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+### Installation
 
-## Project Setup
+1. Clone the repository:
 
-```sh
+   ```bash
+   git clone https://github.com/your-username/campus-response-scheduler.git
+Navigate to the project directory:
+
+bash
+Copy code
+cd campus-response-scheduler
+Install dependencies:
+
+bash
+Copy code
 npm install
-```
+Set up environment variables:
 
-### Compile and Hot-Reload for Development
+Create a .env file in the root directory.
+Define the necessary environment variables (e.g., MongoDB connection string, API keys).
+Start the application:
 
-```sh
-npm run dev
-```
+bash
+Copy code
+npm start
+The app should now be accessible at http://localhost:5173.
 
-### Type-Check, Compile and Minify for Production
 
-```sh
-npm run build
-```
+
+
