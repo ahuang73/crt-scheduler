@@ -26,12 +26,12 @@
 
 Navigate to the project directory:
     
-    ```bash
+    ```
     cd campus-response-scheduler
 
 Install dependencies:
     
-    ```bash
+    ```
     npm install
 
 Set up environment variables:
@@ -41,7 +41,7 @@ Define the necessary environment variables (e.g., MongoDB connection string, API
 
 Start the application:
     
-    ```bash
+    ```
     npm start
 
 The app should now be accessible at http://localhost:5173. 
