@@ -1,5 +1,5 @@
 # Use an official Node.js runtime as a parent image
-FROM node:14
+FROM node:lts-alpine
 
 # Set the working directory to /app
 WORKDIR /app
@@ -10,6 +10,8 @@ COPY package*.json ./
 COPY .env ./
 # Copy the SSL key file
 COPY SSL/ SSL/
+
+COPY . .
 # Install dependencies
 RUN npm install
 
@@ -17,10 +19,11 @@ RUN npm install
 COPY src ./src
 
 # Expose the port on which your backend will run
-EXPOSE 3000
+EXPOSE 3000 5173
+
 
 # Build your frontend (if necessary)
-# RUN npm run build
+RUN npm run build
 
 # Define the command to run your backend application
-CMD ["npm", "start"]
+CMD ["npm", "run", "start-both"]
