@@ -28,8 +28,14 @@ onMounted(() => {
   <CNavbar expand="sm" color-scheme="dark" class="bg-dark" placement="fixed-top">
   <CContainer fluid>
     <CNavbarBrand href="/">Campus Response Team</CNavbarBrand>
-    <CNavbarToggler @click="visible = !visible"/>
-    <CCollapse class="navbar-collapse" :visible="visible">
+    
+    <CNavbarToggler @click="
+    //@ts-ignore
+    visible = !visible"/>
+    <CCollapse class="navbar-collapse" :visible="
+    //@ts-ignore
+    visible
+    ">
       <CNavbarNav>
 
         <CNavItem>

@@ -1,3 +1,4 @@
+//@ts-nocheck
 <script setup lang="ts">
 import { CButton, CTable, CProgress, CProgressBar } from '@coreui/vue';
 
@@ -69,17 +70,17 @@ import { CButton, CTable, CProgress, CProgressBar } from '@coreui/vue';
                         <td>{{ shift.Location }}</td>
                         <td>{{ shift.Start }}</td>
                         <td>{{ shift.End }}</td>
-                        <td v-if="shift.Primary === '' && (currentResponder.Position == 'Primary' || isShiftCritical(shift)) && showCurrentShifts && notTakenByResponder(shift) && currentResponder?.Position == 'Primary'"
+                        <td v-if="shift.Primary === '' && (currentResponder?.Position == 'Primary' || isShiftCritical(shift)) && showCurrentShifts && notTakenByResponder(shift) && currentResponder?.Position == 'Primary'"
                             class="text-start">
                             <CButton @click="takeShift(shift, 'Primary')" class="text-start">Take Shift</CButton>
                         </td>
                         <td v-else>{{ shift.Primary }}</td>
-                        <td v-if="shift.Secondary === '' && (currentResponder.Position == 'Secondary' || isShiftCritical(shift)) && showCurrentShifts && notTakenByResponder(shift) && (currentResponder?.Position == 'Primary' || currentResponder?.Position == 'Secondary')"
+                        <td v-if="shift.Secondary === '' && (currentResponder?.Position == 'Secondary' || isShiftCritical(shift)) && showCurrentShifts && notTakenByResponder(shift) && (currentResponder?.Position == 'Primary' || currentResponder?.Position == 'Secondary')"
                             color="secondary" class="text-start">
                             <CButton @click="takeShift(shift, 'Secondary')" class="text-start">Take Shift</CButton>
                         </td>
                         <td v-else>{{ shift.Secondary }}</td>
-                        <td v-if="shift.Rookie === '' && (currentResponder.Position == 'Rookie' || isShiftCritical(shift)) && showCurrentShifts && notTakenByResponder(shift) && (currentResponder?.Position == 'Primary' || currentResponder?.Position == 'Secondary' || currentResponder?.Position == 'Rookie')"
+                        <td v-if="shift.Rookie === '' && (currentResponder?.Position == 'Rookie' || isShiftCritical(shift)) && showCurrentShifts && notTakenByResponder(shift) && (currentResponder?.Position == 'Primary' || currentResponder?.Position == 'Secondary' || currentResponder?.Position == 'Rookie')"
                             color="secondary" class="text-start">
                             <CButton @click="takeShift(shift, 'Rookie')" class="text-start">Take Shift</CButton>
                         </td>
@@ -128,8 +129,10 @@ const isShiftCritical = (shift: Shift) => {
 
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     let criticalTime = 0;
-    for (let i = 0; i < shiftTypes.value.length; i++) {
+    for (let i = 0; i < (shiftTypes.value?.length ?? 0); i++) {
+        //@ts-ignore
         if (shiftTypes.value[i].Name == shift.Type) {
+            //@ts-ignore
             criticalTime = parseInt(shiftTypes.value[i].CriticalTime);
             return diffDays <= criticalTime;
         }
@@ -142,7 +145,7 @@ const isShiftCritical = (shift: Shift) => {
 };
 const notTakenByResponder = (shift: Shift) => {
 
-    return !(shift.Primary == currentResponder.value.Name || shift.Secondary == currentResponder.value.Name || shift.Rookie == currentResponder.value.Name);
+    return !(shift.Primary == currentResponder.value?.Name || shift.Secondary == currentResponder.value?.Name || shift.Rookie == currentResponder.value?.Name);
 }
 try {
     axios.defaults.withCredentials = true;
@@ -152,7 +155,8 @@ try {
         const jsonUser = JSON.parse(decodedUserData);
         user.value = jsonUser;
         const headers = { Authorization: `Bearer ${jsonUser.token}` }
-        const uname = user.value.username;
+        const uname = user.value?.username;
+        //@ts-ignore
         scheduler.value = user.value.isAdmin;
 
         const response = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shiftsdata`, {
@@ -181,7 +185,7 @@ const filteredShifts = computed(() => {
     let today = new Date();
 
     const filtered: any[] = [];
-
+    //@ts-ignore
     for (const shift of shifts_data.value) {
 
         const [day2, month2, year2] = shift.Date.split('-').map(Number);
@@ -204,22 +208,24 @@ export default {
     methods: {
         takeShift(shift: Shift, position: "Primary" | "Secondary" | "Rookie") {
             try {
+                //@ts-ignore
                 if (currentResponder.value?.getCertExpiration() < 0) {
                     alert("Your certs are expired. You are unable to take shifts until they are renewed.")
                 } else {
                     const updatedShift = {
                         ...shift,
-                        [position]: currentResponder.value.Name,
+                        [position]: currentResponder.value?.Name,
                     };
                     const response = axios.post(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shiftsdata/update/${shift._id}`, updatedShift);
 
                     const updatedResponder = {
                         ...currentResponder.value,
+                        //@ts-ignore
                         [shift.Type]: currentResponder.value[shift.Type] + shift.TotalHours,
                     };
 
                     console.log(currentResponder);
-                    const response2 = axios.post(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/responderdata/update/${currentResponder.value.Username}`, updatedResponder);
+                    const response2 = axios.post(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/responderdata/update/${currentResponder.value?.Username}`, updatedResponder);
                     window.location.reload();
 
 

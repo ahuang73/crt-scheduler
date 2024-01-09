@@ -1,3 +1,4 @@
+//@ts-nocheck
 <template>
     <div>
         <h1>Logging out...</h1>

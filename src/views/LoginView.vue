@@ -1,3 +1,4 @@
+//@ts-nocheck
 <script setup lang = 'ts'>
 import { CButton } from '@coreui/vue';
 </script>

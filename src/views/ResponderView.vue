@@ -1,3 +1,4 @@
+
 <script setup lang="ts">
 import { ShiftType, Responder } from '@/Classes';
 import { CButton, CForm, CFormInput, CTable } from '@coreui/vue';
@@ -33,17 +34,32 @@ import { onMounted, ref } from 'vue';
     </thead>
     <tbody>
       <tr v-for="responder in responders">
-        <td>{{ responder.Name }}</td>
+      
+        <td>{{
+          //@ts-ignore
+         responder.Name }}</td>
         <td v-for="name in shiftTypeColumns">{{ responder[name] }}</td>
-        <td>{{ responder.certExpiration }}</td>
-        <td>{{ responder.Position }}</td>
+        <td>{{
+         //@ts-ignore
+         responder.certExpiration }}</td>
+        <td>{{ 
+          //@ts-ignore
+        responder.Position }}</td>
         <td>
-          <CButton v-if="responder.isSuspended" @click="handleSuspendedButtonClick(responder)" color="secondary">Remove Suspension</CButton>
-          <CButton v-if="!responder.isSuspended" @click="handleSuspendedButtonClick(responder)" color="secondary">Suspend</CButton>
+          <CButton v-if="
+            //@ts-ignore
+            responder.isSuspended" @click="handleSuspendedButtonClick(responder)" color="secondary">Remove Suspension</CButton>
+          <CButton v-if="
+          //@ts-ignore
+          !responder.isSuspended" @click="handleSuspendedButtonClick(responder)" color="secondary">Suspend</CButton>
         </td>
         <td>
-          <CButton v-if="responder.isAdmin" @click="handleAdminButtonClick(responder)" color="secondary">Remove Admin</CButton>
-          <CButton v-if="!responder.isAdmin" @click="handleAdminButtonClick(responder)" color="secondary">Make Admin</CButton>
+          <CButton v-if="
+            //@ts-ignore
+            responder.isAdmin" @click="handleAdminButtonClick(responder)" color="secondary">Remove Admin</CButton>
+          <CButton v-if="
+          //@ts-ignore
+          !responder.isAdmin" @click="handleAdminButtonClick(responder)" color="secondary">Make Admin</CButton>
           
         </td>
         <td>

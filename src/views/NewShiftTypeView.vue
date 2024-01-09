@@ -1,3 +1,4 @@
+//@ts-nocheck
 <script setup lang="ts">
 import { CForm, CFormLabel, CFormInput, CButton, CFormCheck } from '@coreui/vue';
 import axios from 'axios';

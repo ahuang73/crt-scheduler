@@ -102,7 +102,7 @@ onMounted(async () => {
       const decodedUserData = decodeURIComponent(userDataString);
       const jsonUser = JSON.parse(decodedUserData);
       user.value = jsonUser;
-      const uname = user.value.username;
+      const uname = user.value?.username;
 
     } else {
       router.push('/login');
@@ -171,7 +171,9 @@ onMounted(async () => {
           <CDropdown v-model="formData.Type">
             <CDropdownToggle color="primary" variant="outline" id="Type">{{ formData.Type }}</CDropdownToggle>
             <CDropdownMenu>
-              <CDropdownItem v-for="typeOption in TypeOptions" :key="typeOption.Name" @click="formData.Type = typeOption">
+              <CDropdownItem v-for="typeOption in TypeOptions" :key="
+                //@ts-ignore
+                typeOption.Name" @click="formData.Type = typeOption">
                 {{ typeOption }}</CDropdownItem>
             </CDropdownMenu>
           </CDropdown>

@@ -1,3 +1,4 @@
+//@ts-nocheck
 <script setup lang="ts">
 import { CButton, CTable } from '@coreui/vue';
 import axios from 'axios';

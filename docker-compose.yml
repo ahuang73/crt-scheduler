@@ -1,0 +1,17 @@
+version: '3'
+services:
+  # Define the web service
+  web:
+    # Use the Dockerfile in the current directory
+    build: .
+    # Map port 3000 on the host to port 3000 on the container
+    ports:
+      - "3000:3000"
+    # Optional: Specify any environment variables
+    environment:
+      - NODE_ENV=production
+    # Optional: Mount volumes if needed
+    volumes:
+      - ./src:/app
+    # Optional: Set network_mode if needed
+    # network_mode: "host"

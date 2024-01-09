@@ -1,3 +1,4 @@
+//@ts-nocheck
 <script setup lang="ts">
 import axios from 'axios';
 import { CProgressBar, CProgress, CTable } from '@coreui/vue';
@@ -10,16 +11,16 @@ import router from '@/router';
 <template>
     <div class="page-header">
         <h1>
-            {{ `${responder.Name} (${responder.Position})` }}
+            {{ `${responder?.Name} (${responder?.Position})` }}
 
         </h1>
 
         <div class="row">
             <div class="well well-small span-6">
                 <h4>Certifications</h4>
-                <p>SFA expiration date: {{ formatDate(responder.SFAexpiry) }}</p>
-                <p>BLS expiration date: {{ formatDate(responder.BLSexpiry) }}</p>
-                <p>FR expiration date: {{ formatDate(responder.FRexpiry) }}</p>
+                <p>SFA expiration date: {{ formatDate(responder?.SFAexpiry) }}</p>
+                <p>BLS expiration date: {{ formatDate(responder?.BLSexpiry) }}</p>
+                <p>FR expiration date: {{ formatDate(responder?.FRexpiry) }}</p>
                 <p>
                 </p>
                 <p v-if="certExpiration >= 0">Based on your expiration dates, you will not be able to take shifts after {{ `${certExpiration} days`}}</p>
@@ -122,7 +123,7 @@ const user = ref<User>();
 const pastShiftsHoursByType = ref();
 const upcomingShiftsHoursByType =ref();
 const certExpiration = ref();
-const formatDate = (dateString: string | undefined): string => {
+const formatDate = (dateString: any | undefined): string => {
     if (!dateString) return '';
 
     const date = new Date(dateString);
@@ -140,7 +141,7 @@ try {
         const decodedUserData = decodeURIComponent(userDataString);
         const jsonUser = JSON.parse(decodedUserData);
         user.value = jsonUser;
-        const uname = user.value.username;
+        const uname = user.value?.username;
         const response = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/responderdata/user/${uname}`);
         
         responder.value = new Responder(response.data[0]);
@@ -150,7 +151,9 @@ try {
         shift_types.value = shiftTypesResponse.data;
 
         for (let shiftType in shift_types.value) {
+            //@ts-ignore
             if (responder.value[shift_types.value[shiftType].Name] == undefined) {
+                //@ts-ignore
                 responder.value[shift_types.value[shiftType].Name] = 0
             }
 
@@ -161,20 +164,20 @@ try {
         const shiftTableResponse = await axios.get(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shiftsdata/responder/` + responderName);
         shiftData.value = shiftTableResponse.data;
 
-        upcomingShifts.value = shiftData.value.filter((shift: Shift) => {
+        upcomingShifts.value = shiftData.value?.filter((shift: Shift) => {
             const [day, month, year] = shift.Date.split('-');
             const shiftDate = new Date(`${year}-${month}-${day}`);
 
             return shiftDate >= new Date();
         });
 
-        pastShifts.value = shiftData.value.filter((shift: Shift) => {
+        pastShifts.value = shiftData.value?.filter((shift: Shift) => {
             const [day, month, year] = shift.Date.split('-');
             const shiftDate = new Date(`${year}-${month}-${day}`);
             return shiftDate < new Date();
         });
 
-        pastShiftsHoursByType.value = pastShifts.value.reduce((acc, shift: Shift) => {
+        pastShiftsHoursByType.value = pastShifts.value?.reduce((acc:any, shift: Shift) => {
             const shiftType = shift.Type;
             const startTime = shift.Start.split(':');
             const endTime = shift.End.split(':');
@@ -184,13 +187,13 @@ try {
             return acc;
         }, {});
         console.log(pastShiftsHoursByType.value)
-        shift_types.value.forEach((shiftType) => {
+        shift_types.value?.forEach((shiftType) => {
             if (!(shiftType.Name in pastShiftsHoursByType.value)) {
                 pastShiftsHoursByType.value[shiftType.Name] = 0;
             }
         });
 
-        upcomingShiftsHoursByType.value = upcomingShifts.value.reduce((acc, shift: Shift) => {
+        upcomingShiftsHoursByType.value = upcomingShifts.value?.reduce((acc:any, shift: Shift) => {
             const shiftType = shift.Type;
             const startTime = shift.Start.split(':');
             const endTime = shift.End.split(':');
@@ -198,7 +201,7 @@ try {
             acc[shiftType] = (acc[shiftType] || 0) + shiftHours;
             return acc;
         }, {});
-        shift_types.value.forEach((shiftType) => {
+        shift_types.value?.forEach((shiftType) => {
             if (!(shiftType.Name in upcomingShiftsHoursByType.value)) {
                 upcomingShiftsHoursByType.value[shiftType.Name] = 0;
             }

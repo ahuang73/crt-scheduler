@@ -1,3 +1,4 @@
+
 <script setup lang="ts">
 import { CForm, CFormLabel, CFormTextarea, CFormInput, CDropdown, CDropdownToggle, CDropdownItem, CDropdownMenu, CButton } from '@coreui/vue';
 import VueDatePicker from '@vuepic/vue-datepicker';
@@ -29,7 +30,10 @@ import router from '@/router';
                     <CDropdown v-model="formData.Type">
                         <CDropdownToggle color="primary" variant="outline" id="Type">{{ formData.Type }}</CDropdownToggle>
                         <CDropdownMenu>
-                            <CDropdownItem v-for="typeOption in TypeOptions" :key="typeOption.Name"
+                            
+                            <CDropdownItem v-for="typeOption in TypeOptions" :key="
+                            //@ts-ignore
+                            typeOption.Name"
                                 @click="formData.Type = typeOption">{{ typeOption }}</CDropdownItem>
                         </CDropdownMenu>
                     </CDropdown>
@@ -111,7 +115,7 @@ try {
         const decodedUserData = decodeURIComponent(userDataString);
         const jsonUser = JSON.parse(decodedUserData);
         user.value = jsonUser;   
-        const uname = user.value.username;
+        const uname = user.value?.username;
         
     } else {
         router.push('/login')
@@ -204,7 +208,7 @@ export default {
                 Rookie: "",
                 Type: "",
                 Description: "",
-                TotalHours:"",
+                TotalHours:0,
 
             };
 

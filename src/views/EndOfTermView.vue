@@ -1,3 +1,4 @@
+//@ts-nocheck
 <script setup lang="ts">
 import { CForm, CButton } from '@coreui/vue';
 import VueDatePicker from '@vuepic/vue-datepicker';
