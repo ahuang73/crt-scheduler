@@ -23,26 +23,23 @@
 
    ```bash
    git clone https://github.com/your-username/campus-response-scheduler.git
+
 Navigate to the project directory:
-
-bash
-Copy code
-cd campus-response-scheduler
+    ```bash
+    cd campus-response-scheduler
 Install dependencies:
+    ```bash
+    npm install
 
-bash
-Copy code
-npm install
 Set up environment variables:
 
 Create a .env file in the root directory.
 Define the necessary environment variables (e.g., MongoDB connection string, API keys).
 Start the application:
-
-bash
-Copy code
-npm start
-The app should now be accessible at http://localhost:5173.
+    ```bash
+    npm start
+The app should now be accessible at http://localhost:5173. 
+The server will be hosted on https://localhost:3000 by default
 
 
 
