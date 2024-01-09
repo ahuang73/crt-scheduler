@@ -7,14 +7,20 @@ WORKDIR /app
 # Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
 
-# Install dependencies for both frontend and backend
+COPY .env ./
+# Copy the SSL key file
+COPY SSL/ SSL/
+# Install dependencies
 RUN npm install
 
-# Copy the content of the local src directory to the working directory
-COPY src .
+# Copy the source code
+COPY src ./src
 
 # Expose the port on which your backend will run
 EXPOSE 3000
+
+# Build your frontend (if necessary)
+# RUN npm run build
 
 # Define the command to run your backend application
 CMD ["npm", "start"]
