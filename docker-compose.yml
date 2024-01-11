@@ -1,24 +1,26 @@
 version: '3'
 services:
-  # Define the web service
-  web:
+  app:
     # Use the Dockerfile in the current directory
     build: 
       dockerfile: ./dockerfile
       context: .
     depends_on:
-        - db
+      - db
     # Map port 3000 on the host to port 3000 on the container
     ports:
       - "3000:3000"
-      - "5173:3000"
+      - "5173:5173"
     # Optional: Specify any environment variables
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=production npm ci
     # Optional: Mount volumes if needed
     volumes:
-      - ./src:/app
+      - .:/app
     # Optional: Set network_mode if needed
     # network_mode: "host"
   db:
-    image: mongodb
+    image: mongo
+    environment:
+      MONGO_INITDB_DATABASE: 'CRT-Data'
+  

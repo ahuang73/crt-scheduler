@@ -6,17 +6,24 @@ WORKDIR /app
 
 # Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
+# Install dependencies
+RUN npm install
+
+RUN npm install esbuild-wasm
+
+RUN npm install -g concurrently
+ENTRYPOINT [ "./entrypoint.sh" ]
 
 COPY .env ./
 # Copy the SSL key file
 COPY SSL/ SSL/
 
 COPY . .
-# Install dependencies
-RUN npm install
 
 # Copy the source code
 COPY src ./src
+
+COPY server ./server
 
 # Expose the port on which your backend will run
 EXPOSE 3000 5173

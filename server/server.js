@@ -26,12 +26,14 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   }
 });
+
 const dbName = "CRTData"
 const key = fs.readFileSync(process.env.SSL_KEY_PATH);
 const cert = fs.readFileSync(process.env.SSL_CERT_PATH);
 
 const server = https.createServer({key: key, cert: cert }, app);
 app.use(express.json());
+app.use(express.static('../dist'))
 app.use(cors({
   origin: 'http://localhost:5173',
   credentials:true,
