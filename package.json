@@ -9,7 +9,7 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --noEmit -p tsconfig.app.json --composite false",
     "start": "node server/server.js",
-    "start-both": "concurrently \"npm run start\" \"npm run dev\""
+    "start-both": "concurrently \"npm run start\" \"npm run preview\""
   },
   "dependencies": {
     "@coreui/coreui": "^4.2.6",
