@@ -30,3 +30,5 @@ services:
       MONGO_INITDB_DATABASE: 'CRT-Data'
     ports:
     - "27017:27017"
+    volumes:
+    - ./mongoscripts/01-init-users.js:/docker-entrypoint-initdb.d/01-init-users.js:ro
