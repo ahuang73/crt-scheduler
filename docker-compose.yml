@@ -7,7 +7,7 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - db
+      - mongodb
     environment:
       - NODE_ENV=production
     volumes:
@@ -24,7 +24,9 @@ services:
     volumes:
       - .:/app  # Adjust the volume path based on your project structure
 
-  db:
+  mongodb:
     image: mongo
     environment:
       MONGO_INITDB_DATABASE: 'CRT-Data'
+    ports:
+    - "27017:27017"
