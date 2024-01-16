@@ -9,6 +9,8 @@ This application allows the structure of having a primary, secondary, and rookie
 Made by: Andy Huang
 Contact: a73huang@uwaterloo.ca
 
+CRT scheduling contact:
+crtsched@uwaterloo.ca
 
 
 ## Table of Contents
