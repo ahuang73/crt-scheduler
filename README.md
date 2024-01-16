@@ -2,6 +2,14 @@
 # Campus Response Team Scheduler App
 
 
+An app used by the Campus Response Team for users to keep track of their individual hours, certifications, shifts, and more.
+
+This application allows the structure of having a primary, secondary, and rookie responder in each shift in a simple and more visible way. It also provides information about a person's certifications, and team policies.
+
+Made by: Andy Huang
+Contact: a73huang@uwaterloo.ca
+
+
 
 ## Table of Contents
 
@@ -42,11 +50,15 @@ Define the necessary environment variables (e.g., MongoDB connection string, API
 Start the application:
     
     ```
-    npm start
+    npm run start-both
 
 The app should now be accessible at http://localhost:5173. 
 The server will be hosted on https://localhost:3000 by default
 
 
+Running the docker container:
 
+docker-compose up --build
+
+Make sure to modify the Username in the mongo initialization script to be your WATID username. 
 
