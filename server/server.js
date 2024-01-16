@@ -27,7 +27,7 @@ const client = new MongoClient(uri, {
   }
 });
 
-const dbName = "CRTData"
+const dbName = "CRT-Data"
 const key = fs.readFileSync(process.env.SSL_KEY_PATH);
 const cert = fs.readFileSync(process.env.SSL_CERT_PATH);
 
@@ -115,7 +115,8 @@ passport.use(new Strategy({
     const decodedProfile = parseJwt(profile);
     const username = decodedProfile.username;
     const responder = await collection.findOne({ Username: username });
-    
+    console.log("USERNAME: " + username)
+    console.log(profile)
     console.log('OIDC Strategy - Authentication Successful:', responder);
     return done(null, responder);
   }
