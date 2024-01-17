@@ -8,9 +8,7 @@ COPY package.json ./
 
 RUN npm install
 
-RUN npm install esbuild-wasm
 
-RUN npm install -g concurrently
 ENTRYPOINT [ "./entrypoint.sh" ]
 
 COPY .env ./
@@ -22,16 +20,16 @@ COPY . .
 COPY src ./src
 
 
-EXPOSE 5173
-
 
 RUN npm run build
 
 FROM nginx:latest AS production-stage
+ARG PORT=5173
+ENV PORT=$PORT
 
 COPY --from=build-stage /app/dist /usr/share/nginx/html
-
-EXPOSE 80
+COPY nginx.conf ./nginx.conf
+EXPOSE $PORT
 
 
 CMD ["nginx", "-g", "daemon off;"]

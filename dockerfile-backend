@@ -7,9 +7,8 @@ COPY package*.json ./
 
 RUN npm install
 
-RUN npm install esbuild-wasm
 
-RUN npm install -g concurrently
+
 ENTRYPOINT [ "./entrypoint.sh" ]
 
 COPY .env ./
