@@ -1,12 +1,11 @@
-# Use an official Node.js runtime as a parent image
-FROM node:lts-alpine
 
-# Set the working directory to /app
+FROM node:lts-alpine AS build-stage
+
+
 WORKDIR /app
 
-# Copy package.json and package-lock.json to the working directory
-COPY package*.json ./
-# Install dependencies
+COPY package.json ./
+
 RUN npm install
 
 RUN npm install esbuild-wasm
@@ -15,20 +14,24 @@ RUN npm install -g concurrently
 ENTRYPOINT [ "./entrypoint.sh" ]
 
 COPY .env ./
-# Copy the SSL key file
+
 
 COPY . .
 
-# Copy the source code
+
 COPY src ./src
 
 
-# Expose the port on which your frontend will run
 EXPOSE 5173
 
 
-# Build your frontend (if necessary)
 RUN npm run build
 
-# Define the command to run your backend application
-CMD ["npm", "run", "preview"]
+FROM nginx:latest AS production-stage
+
+COPY --from=build-stage /app/dist /usr/share/nginx/html
+
+EXPOSE 80
+
+
+CMD ["nginx", "-g", "daemon off;"]
