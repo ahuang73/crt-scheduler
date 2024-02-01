@@ -27,7 +27,8 @@ const client = new MongoClient(uri, {
   }
 });
 
-const dbName = "CRT-Data"
+//const dbName = "CRT-Data" //for prod
+const dbName = "CRTData"
 const key = fs.readFileSync(process.env.SSL_KEY_PATH);
 const cert = fs.readFileSync(process.env.SSL_CERT_PATH);
 
@@ -403,7 +404,31 @@ app.delete('/api/shiftsdata/deleteBefore/:dateString', restrict(), async (req, r
     client.close();
   }
 });
+app.delete('/api/shiftsdata/delete/:id', restrict(), async (req, res) => {
+  try {
+      await client.connect();
 
+      const db = client.db(dbName);
+      const collection = db.collection("shifts");
+      const shiftId = req.params.id;
+      
+      // Perform the delete operation
+      const result = await collection.deleteOne({ _id: new ObjectId(shiftId) });
+      
+      if (result.deletedCount === 1) {
+          console.log(`Shift with id ${shiftId} deleted successfully.`);
+          res.status(204).end();
+      } else {
+          console.error(`Shift with id ${shiftId} not found.`);
+          res.status(404).json({ error: 'Shift not found' });
+      }
+  } catch (error) {
+      console.error('Error deleting shift:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+  } finally {
+      await client.close();
+  }
+});
 
 app.get('/api/shifttypedata', restrict(), async (req, res) => {
   try {
