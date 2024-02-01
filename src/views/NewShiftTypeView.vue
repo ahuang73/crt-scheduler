@@ -14,19 +14,19 @@ import axios from 'axios';
         <CForm @submit="submitForm">
             <div class="outer">
                 <CFormLabel for="name">Name</CFormLabel>
-                <CFormInput type="text" id="name" v-model=formData.Name placeholder="" />
+                <CFormInput type="text" id="name" v-model=formData.Name placeholder="" required/>
             </div>
             <div>
                 <CFormLabel for="primaryreq">Primary Requirement</CFormLabel>
-                <CFormInput type="number" id="primaryreq" v-model=formData.PrimaryReq placeholder="" />
+                <CFormInput type="number" id="primaryreq" v-model=formData.PrimaryReq placeholder="" required/>
             </div>
             <div class="outer">
                 <CFormLabel for="secondaryreq">Secondary Requirement</CFormLabel>
-                <CFormInput type="number" id="secondaryreq" v-model=formData.SecondaryReq placeholder="" />
+                <CFormInput type="number" id="secondaryreq" v-model=formData.SecondaryReq placeholder="" required/>
             </div>
             <div>
                 <CFormLabel for="name">Days Preceeding for Shift to Become Critical</CFormLabel>
-                <CFormInput type="number" id="name" v-model="formData.CriticalTime " placeholder="" />
+                <CFormInput type="number" id="name" v-model="formData.CriticalTime " placeholder="" required />
             </div>
             <div>
                 <CFormCheck id="flexCheckDefault" v-model=formData.SecondaryFlag label="Secondary responders can take the primary slot for shifts of this type"/>
@@ -63,6 +63,9 @@ export default {
         async submitForm() {
             event?.preventDefault();
             try {
+                if (!this.validateForm()) {
+                    return;
+                }
                 axios.defaults.withCredentials=true
                 const response = await axios.post(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shifttypedata`, this.formData);
                 console.log('Shift Type Created:', response.data, this.formData);
@@ -89,6 +92,21 @@ export default {
                 SuspendedFlag:false
             };
 
+        },
+        validateForm() {
+            const primaryReq = Number(this.formData.PrimaryReq);
+            const secondaryReq = Number(this.formData.SecondaryReq);
+            const criticalTime = Number(this.formData.CriticalTime);
+
+            if (
+                this.formData.Name === "" ||
+                isNaN(primaryReq) ||
+                isNaN(secondaryReq) ||
+                isNaN(criticalTime)
+            ) {
+                return false;
+            }
+            return true;
         }
 
     }

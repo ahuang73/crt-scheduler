@@ -17,24 +17,24 @@ import router from '@/router';
         <CForm @submit="submitForm">
             <div class="outer">
                 <CFormLabel for="Name">Name</CFormLabel>
-                <CFormInput v-model="formData.Name" type="text" id="Name" placeholder="" />
+                <CFormInput v-model="formData.Name" type="text" id="Name" placeholder="" required />
             </div>
             <div>
                 <CFormLabel for="Location">Location</CFormLabel>
-                <CFormInput v-model="formData.Location" type="text" id="Location" placeholder="" />
+                <CFormInput v-model="formData.Location" type="text" id="Location" placeholder="" required />
             </div>
 
             <div class="outer">
                 Shift Type
                 <div>
                     <CDropdown v-model="formData.Type">
-                        <CDropdownToggle color="primary" variant="outline" id="Type">{{ formData.Type }}</CDropdownToggle>
+                        <CDropdownToggle color="primary" variant="outline" id="Type" required>{{ formData.Type }}
+                        </CDropdownToggle>
                         <CDropdownMenu>
-                            
+
                             <CDropdownItem v-for="typeOption in TypeOptions" :key="
-                            //@ts-ignore
-                            typeOption.Name"
-                                @click="formData.Type = typeOption">{{ typeOption }}</CDropdownItem>
+                                //@ts-ignore
+                                typeOption.Name" @click="formData.Type = typeOption">{{ typeOption }}</CDropdownItem>
                         </CDropdownMenu>
                     </CDropdown>
                 </div>
@@ -42,12 +42,12 @@ import router from '@/router';
 
             <div class="outer">
                 <CFormLabel for="date"> Start Date </CFormLabel>
-                <VueDatePicker v-model="tempData.Start"></VueDatePicker>
+                <VueDatePicker v-model="tempData.Start" required></VueDatePicker>
             </div>
 
             <div class="outer">
                 <CFormLabel for="date"> End Date </CFormLabel>
-                <VueDatePicker v-model="tempData.End"></VueDatePicker>
+                <VueDatePicker v-model="tempData.End" required></VueDatePicker>
             </div>
             <div class="outer">
                 Primary
@@ -110,13 +110,13 @@ const user = ref<User>();
 
 try {
     const userDataString = document.cookie.replace(/(?:(?:^|.*;\s*)userData\s*=\s*([^;]*).*$)|^.*$/, '$1');
-    
+
     if (userDataString) {
         const decodedUserData = decodeURIComponent(userDataString);
         const jsonUser = JSON.parse(decodedUserData);
-        user.value = jsonUser;   
+        user.value = jsonUser;
         const uname = user.value?.username;
-        
+
     } else {
         router.push('/login')
     }
@@ -149,7 +149,7 @@ export default {
                 Rookie: "Rookie",
                 Type: "Select",
                 Description: "",
-                TotalHours:0.0,
+                TotalHours: 0.0,
 
             },
             tempData: {
@@ -163,21 +163,24 @@ export default {
         async submitForm() {
             event?.preventDefault();
             try {
-                axios.defaults.withCredentials=true
+                if (!this.validateForm()) {
+                    return;
+                }   
+                axios.defaults.withCredentials = true
                 let tempStart = this.tempData.Start
                 let tempEnd = this.tempData.End
 
                 this.formData.Date = tempStart.getDate() + '-' + (tempStart.getMonth() + 1) + '-' + tempStart.getFullYear()
                 this.formData.Start = tempStart.getHours() + ':' + tempStart.getMinutes()
                 this.formData.End = tempEnd.getHours() + ':' + tempEnd.getMinutes()
-                this.formData.TotalHours= tempEnd.getHours()-tempStart.getHours() + (tempEnd.getMinutes()-tempStart.getMinutes())/60.0
-                if(this.formData.Primary == "Primary"){
+                this.formData.TotalHours = tempEnd.getHours() - tempStart.getHours() + (tempEnd.getMinutes() - tempStart.getMinutes()) / 60.0
+                if (this.formData.Primary == "Primary") {
                     this.formData.Primary = ""
                 }
-                if(this.formData.Secondary == "Secondary"){
+                if (this.formData.Secondary == "Secondary") {
                     this.formData.Secondary = ""
                 }
-                if(this.formData.Rookie == "Rookie"){
+                if (this.formData.Rookie == "Rookie") {
                     this.formData.Rookie = ""
                 }
 
@@ -194,7 +197,23 @@ export default {
                 console.error('Error creating shift:', error);
             }
         },
+        validateForm() {
+            // Check if the mandatory fields are filled
+            if (!this.formData.Name || !this.formData.Location || !this.tempData.Start || !this.tempData.End) {
+                alert('Please fill in all mandatory fields.');
+                return false;
+            }
 
+            // Check if End date is not before Start date
+            const startDate = new Date(this.tempData.Start);
+            const endDate = new Date(this.tempData.End);
+            if (endDate <= startDate) {
+                alert('End date cannot be before Start date.');
+                return false;
+            }
+
+            return true;
+        },
 
         resetForm() {
             this.formData = {
@@ -208,7 +227,7 @@ export default {
                 Rookie: "",
                 Type: "",
                 Description: "",
-                TotalHours:0,
+                TotalHours: 0,
 
             };
 
@@ -242,4 +261,5 @@ export default {
 
 .outer {
     margin-top: 10px;
-}</style>
+}
+</style>

@@ -16,11 +16,11 @@ import router from '@/router';
         <CForm @submit="submitForm">
             <div class="outer">
                 <CFormLabel for="fname">Name</CFormLabel>
-                <CFormInput type="text" id="name" v-model="formData.Name" placeholder="" />
+                <CFormInput type="text" id="name" v-model="formData.Name" placeholder="" required/>
             </div>
             <div class="outer">
                 <CFormLabel for="username">Username</CFormLabel>
-                <CFormInput type="text" v-model="formData.Username" id="username" placeholder="" />
+                <CFormInput type="text" v-model="formData.Username" id="username" placeholder="" required/>
             </div>
 
             <div class="outer">
