@@ -3,7 +3,7 @@ var username = "USERNAME";
 
 // Check if the "responders" collection exists
 
-db = db.getSiblingDB("CRT-Data")
+db = db.getSiblingDB("CRTData")
 var collectionExists = db.getCollectionNames().indexOf("responders") > -1;
 
 if (!collectionExists) {
@@ -31,7 +31,7 @@ if (!existingUser) {
     certExpiration: 1411,
     isAdmin: true,
     isSuspended: false,
-    Name: "Andy Huang"
+    Name: ""
   });
   print("User inserted successfully into 'responders' collection.");
 } else {
