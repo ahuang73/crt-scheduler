@@ -26,6 +26,9 @@ import { onMounted, ref } from 'vue';
         <th scope="col">Name</th>
         <th v-for="name in shiftTypeColumns" scope="col">{{ name }}</th>
         <th scope="col">Cert Expiration</th>
+        <th scope="col">SFA Expiration</th>
+        <th scope="col">BLS Expiration</th>
+        <th scope="col">FR Expiration</th>
         <th scope="col">Rank</th>
         <th scope="col">Suspended</th>
         <th scope="col">Admin</th>
@@ -42,6 +45,15 @@ import { onMounted, ref } from 'vue';
         <td>{{
          //@ts-ignore
          responder.certExpiration }}</td>
+        <td>{{ 
+          //@ts-ignore
+        formatDate(responder.SFAexpiry) }}</td>
+        <td>{{ 
+          //@ts-ignore
+        formatDate(responder.BLSexpiry)}}</td>
+        <td>{{ 
+          //@ts-ignore
+        formatDate(responder.FRexpiry) }}</td>
         <td>{{ 
           //@ts-ignore
         responder.Position }}</td>
@@ -76,6 +88,15 @@ const responders = ref([]);
 const shiftTypes = ref([]);
 const columns = ref([]);
 const shiftTypeColumns = ref([]);
+
+const formatDate = (dateString: string) => {
+  if (!dateString) return ''; // Handle empty or undefined dates
+
+  const date = new Date(dateString);
+  const options = { month: '2-digit', year: 'numeric' };
+  return date.toLocaleDateString('en-US', options as Intl.DateTimeFormatOptions);
+};
+
 const handleSuspendedButtonClick = async (responder: Responder) => {
   try {
     let newResponder:Responder = responder;
@@ -136,6 +157,10 @@ try {
       }
     }
     obj.certExpiration = responder.getCertExpiration();
+
+    if (obj.certExpiration < 0){
+      obj.certExpiration = "Expired";
+    }
 
     console.log(obj)
     return obj;
