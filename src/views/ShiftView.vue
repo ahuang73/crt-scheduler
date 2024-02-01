@@ -61,6 +61,7 @@ import { CButton, CTable, CProgress, CProgressBar } from '@coreui/vue';
                         <th scope="col">Secondary</th>
                         <th scope="col">Rookie</th>
                         <th scope="col">Type</th>
+                        <th scope="col">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -89,6 +90,10 @@ import { CButton, CTable, CProgress, CProgressBar } from '@coreui/vue';
                         <td>
                             <CButton v-if="scheduler" @click="$router.push('shifts/edit/' + shift._id)" color="secondary">
                                 Edit</CButton>
+                            <CButton v-if="scheduler" @click="handleDelete(shift._id)" color="danger">Delete</CButton>
+                        </td>
+                        <td>
+                            
                         </td>
                     </tr>
                 </tbody>
@@ -143,6 +148,18 @@ const isShiftCritical = (shift: Shift) => {
 
 
 };
+
+const handleDelete = async (shiftId: any) => {
+    try {
+        const response = await axios.delete(`${import.meta.env.VITE_PROTOCOL}://${import.meta.env.VITE_HOST}:3000/api/shiftsdata/delete/${shiftId}`);
+        console.log('Shift deleted successfully:', response.data);
+        // Refresh the shifts after deletion
+        window.location.reload();
+    } catch (error) {
+        console.error('Error deleting shift:', error);
+    }
+};
+
 const notTakenByResponder = (shift: Shift) => {
 
     return !(shift.Primary == currentResponder.value?.Name || shift.Secondary == currentResponder.value?.Name || shift.Rookie == currentResponder.value?.Name);
